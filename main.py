@@ -82,6 +82,10 @@ def update_table():
 
     lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(all_processes)}")
 
+    process_table.heading(column=config.COLUMN_ID, text=f"{config.COLUMN_HEADERS[config.COLUMN_ID]} {config.SORT_DESC_ICON}")
+    process_table.heading(column=config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME])
+    process_table.heading(column=config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS])
+
 def sort_column(column):
     global orden_ascendente
     datos = [(process_table.item(row)["values"][0], process_table.item(row)["values"][1], process_table.item(row)["values"][2]) for row in process_table.get_children()]
