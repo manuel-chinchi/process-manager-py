@@ -25,3 +25,11 @@ BOTTOM_FRAME = {
 
 SORT_ASC_ICON = "▲"
 SORT_DESC_ICON = "▼"
+
+def adjust_dpi():
+    # @TODO solucion DPI alto en pantallas https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
+    import ctypes
+    try: # >= win 8.1
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except: # win 8.0 or less
+        ctypes.windll.user32.SetProcessDPIAware()

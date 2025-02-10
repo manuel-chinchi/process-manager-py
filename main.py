@@ -3,12 +3,7 @@ from tkinter import ttk
 import psutil
 import config
 
-# @TODO solucion DPI alto en pantallas https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
-import ctypes
-try: # >= win 8.1
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
-except: # win 8.0 or less
-    ctypes.windll.user32.SetProcessDPIAware()
+config.adjust_dpi()
 
 root = tk.Tk()
 root.title(config.APP_TITLE)
@@ -21,12 +16,12 @@ root.iconbitmap(config.APP_ICON)
 
 def center_window(window):
     window.update_idletasks()  # Actualizar la geometría de la ventana
-    ancho_ventana = window.winfo_width()
-    alto_ventana = window.winfo_height()
-    ancho_pantalla = window.winfo_screenwidth()
-    alto_pantalla = window.winfo_screenheight()
-    x = (ancho_pantalla // 2) - (ancho_ventana // 2)
-    y = (alto_pantalla // 2) - (alto_ventana // 2)
+    width_wnd = window.winfo_width()
+    height_wnd = window.winfo_height()
+    width_screen = window.winfo_screenwidth()
+    height_screen = window.winfo_screenheight()
+    x = (width_screen // 2) - (width_wnd // 2)
+    y = (height_screen // 2) - (height_wnd // 2)
     window.geometry(f"+{x}+{y}")  # Establecer la posición de la ventana
 
 center_window(root)
@@ -35,8 +30,8 @@ center_window(root)
 root.deiconify()
 
 # Resto del código (frame_tabla, tabla, scrollbar, etc.)
-frame_tabla = tk.Frame(root)
-frame_tabla.pack(expand=True, fill="both")
+frame_process_table = tk.Frame(root)
+frame_process_table.pack(expand=True, fill="both")
 
 style = ttk.Style(root)
 style.configure("Custom.Treeview",
@@ -44,103 +39,103 @@ style.configure("Custom.Treeview",
                 relief="flat",
                 )
 
-tabla = ttk.Treeview(frame_tabla, 
+process_table = ttk.Treeview(frame_process_table, 
                     columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS), 
                     show="headings", 
                     style="Custom.Treeview")
-tabla.heading(config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: sort_column(config.COLUMN_ID))
-tabla.heading(config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME],anchor='w', command=lambda: sort_column(config.COLUMN_PROCESS_NAME))
-tabla.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
+process_table.heading(config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: sort_column(config.COLUMN_ID))
+process_table.heading(config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME],anchor='w', command=lambda: sort_column(config.COLUMN_PROCESS_NAME))
+process_table.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
 
-tabla.column("Id", width=100, anchor="w", stretch=True)
-tabla.column("ProcessName", width=350, anchor="w", stretch=True)
-tabla.column("Status", width=150, anchor="w", stretch=True)
+process_table.column(config.COLUMN_ID, width=100, anchor="w", stretch=True)
+process_table.column(config.COLUMN_PROCESS_NAME, width=350, anchor="w", stretch=True)
+process_table.column(config.COLUMN_STATUS, width=150, anchor="w", stretch=True)
 
-scrollbar = tk.Scrollbar(frame_tabla, orient="vertical", command=tabla.yview)
+scrollbar = tk.Scrollbar(frame_process_table, orient="vertical", command=process_table.yview)
 scrollbar.pack(side="right", fill="y")
 
-tabla.config(yscrollcommand=scrollbar.set)
-tabla.pack(expand=True, fill="both")
+process_table.config(yscrollcommand=scrollbar.set)
+process_table.pack(expand=True, fill="both")
 
 orden_ascendente = {config.COLUMN_ID: True, config.COLUMN_PROCESS_NAME: True, config.COLUMN_STATUS: True}
-procesos_completos = []
+all_processes = []
 
 def update_table():
-    global procesos_completos
-    for row in tabla.get_children():
-        tabla.delete(row)
+    global all_processes
+    for row in process_table.get_children():
+        process_table.delete(row)
 
-    procesos_completos = []
+    all_processes = []
     for p in psutil.process_iter(attrs=['pid', 'name', 'status']):
         try:
             pid = p.info['pid']
             name = p.info['name']
             status = p.info['status']
-            procesos_completos.append((pid, name, status))
+            all_processes.append((pid, name, status))
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
-    for pid, name, status in procesos_completos:
-        tabla.insert("", "end", values=(pid, name, status))
+    for pid, name, status in all_processes:
+        process_table.insert("", "end", values=(pid, name, status))
 
-    lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(procesos_completos)}")
+    lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(all_processes)}")
 
-def sort_column(columna):
+def sort_column(column):
     global orden_ascendente
-    datos = [(tabla.item(row)["values"][0], tabla.item(row)["values"][1], tabla.item(row)["values"][2]) for row in tabla.get_children()]
+    datos = [(process_table.item(row)["values"][0], process_table.item(row)["values"][1], process_table.item(row)["values"][2]) for row in process_table.get_children()]
 
-    if columna == config.COLUMN_ID:
-        datos.sort(key=lambda x: int(x[0]), reverse=not orden_ascendente["Id"])
-        orden_ascendente["Id"] = not orden_ascendente["Id"]
-    elif columna == config.COLUMN_PROCESS_NAME:
-        datos.sort(key=lambda x: x[1].lower(), reverse=not orden_ascendente["ProcessName"])
-        orden_ascendente["ProcessName"] = not orden_ascendente["ProcessName"]
-    elif columna == config.COLUMN_STATUS:
-        datos.sort(key=lambda x: x[2].lower(), reverse=not orden_ascendente["Status"])
-        orden_ascendente["Status"] = not orden_ascendente["Status"]
+    if column == config.COLUMN_ID:
+        datos.sort(key=lambda x: int(x[0]), reverse=not orden_ascendente[config.COLUMN_ID])
+        orden_ascendente[config.COLUMN_ID] = not orden_ascendente[config.COLUMN_ID]
+    elif column == config.COLUMN_PROCESS_NAME:
+        datos.sort(key=lambda x: x[1].lower(), reverse=not orden_ascendente[config.COLUMN_PROCESS_NAME])
+        orden_ascendente[config.COLUMN_PROCESS_NAME] = not orden_ascendente[config.COLUMN_PROCESS_NAME]
+    elif column == config.COLUMN_STATUS:
+        datos.sort(key=lambda x: x[2].lower(), reverse=not orden_ascendente[config.COLUMN_STATUS])
+        orden_ascendente[config.COLUMN_STATUS] = not orden_ascendente[config.COLUMN_STATUS]
 
-    for row in tabla.get_children():
-        tabla.delete(row)
+    for row in process_table.get_children():
+        process_table.delete(row)
 
     for pid, name, status in datos:
-        tabla.insert("", "end", values=(pid, name, status))
+        process_table.insert("", "end", values=(pid, name, status))
 
     process_list = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS]
     for col in process_list:
-        if col == columna:
+        if col == column:
             symbol = config.SORT_ASC_ICON if orden_ascendente[col] else config.SORT_DESC_ICON
         else:
             symbol = ""
         text = config.COLUMN_HEADERS[config.COLUMN_ID] if col == config.COLUMN_ID else config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME] if col == config.COLUMN_PROCESS_NAME else config.COLUMN_HEADERS[config.COLUMN_STATUS]
-        tabla.heading(col, text=f"{text} {symbol}")
+        process_table.heading(col, text=f"{text} {symbol}")
 
-def filter_tasks():
-    texto = entry_busqueda.get().strip().lower()
+def filter_process():
+    text = entry_search.get().strip().lower()
 
-    for row in tabla.get_children():
-        tabla.delete(row)
+    for row in process_table.get_children():
+        process_table.delete(row)
 
-    if texto == "":
-        datos_filtrados = procesos_completos
+    if text == "":
+        filtered_data = all_processes
     else:
-        datos_filtrados = [(pid, name, status) for pid, name, status in procesos_completos if texto in name.lower()]
+        filtered_data = [(pid, name, status) for pid, name, status in all_processes if text in name.lower()]
 
-    for pid, name, status in datos_filtrados:
-        tabla.insert("", "end", values=(pid, name, status))
+    for pid, name, status in filtered_data:
+        process_table.insert("", "end", values=(pid, name, status))
 
-    lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(datos_filtrados)}")
+    lbl_total.config(text=f"{config.BOTTOM_FRAME['label_total']}: {len(filtered_data)}")
 
 frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10, fill="x")
 
-entry_busqueda = tk.Entry(frame_controls, width=30)
-entry_busqueda.pack(side="left", padx=5, ipady=2)
+entry_search = tk.Entry(frame_controls, width=30)
+entry_search.pack(side="left", padx=5, ipady=2)
 
-btn_buscar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_tasks)
+btn_buscar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
 btn_buscar.pack(side="left", padx=5)
 
-btn_actualizar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
-btn_actualizar.pack(side="left", padx=5)
+btn_udpdate = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
+btn_udpdate.pack(side="left", padx=5)
 
 lbl_total = tk.Label(frame_controls, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
 lbl_total.pack(side="left", padx=5)
