@@ -9,7 +9,7 @@ COLUMN_STATUS = "Status"
 
 COLUMN_HEADERS = {
     COLUMN_ID : "ID",
-    COLUMN_PROCESS_NAME : "Nombre del proceso",
+    COLUMN_PROCESS_NAME : "Nombre",
     COLUMN_STATUS : "Estado"
 }
 

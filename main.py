@@ -130,6 +130,7 @@ frame_controls.pack(pady=10, fill="x")
 
 entry_search = tk.Entry(frame_controls, width=30)
 entry_search.pack(side="left", padx=5, ipady=2)
+entry_search.bind('<Return>', lambda event: filter_process())
 
 btn_buscar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
 btn_buscar.pack(side="left", padx=5)
