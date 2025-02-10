@@ -6,6 +6,7 @@ import config
 config.adjust_dpi()
 
 root = tk.Tk()
+style = ttk.Style()
 root.title(config.APP_TITLE)
 root.geometry(config.WINDOW_SIZE)  # Ajustamos el tamaño para incluir más columnas
 
@@ -46,6 +47,7 @@ process_table = ttk.Treeview(frame_process_table,
 process_table.heading(config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: sort_column(config.COLUMN_ID))
 process_table.heading(config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME],anchor='w', command=lambda: sort_column(config.COLUMN_PROCESS_NAME))
 process_table.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
+style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 
 process_table.column(config.COLUMN_ID, width=100, anchor="w", stretch=True)
 process_table.column(config.COLUMN_PROCESS_NAME, width=350, anchor="w", stretch=True)
