@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, font
 import psutil
 import config
 
@@ -50,10 +50,10 @@ process_table.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.CO
 process_table.heading(config.COLUMN_LOCATION, text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: sort_column(config.COLUMN_LOCATION))
 style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 
-process_table.column(config.COLUMN_ID, width=75, anchor="w", stretch=True)
-process_table.column(config.COLUMN_PROCESS_NAME, width=150, anchor="w", stretch=True)
-process_table.column(config.COLUMN_STATUS, width=150, anchor="w", stretch=True)
-process_table.column(config.COLUMN_LOCATION, width=150, anchor="w", stretch=True)
+process_table.column(config.COLUMN_ID, width=5, anchor="w", minwidth=75, stretch=True)
+process_table.column(config.COLUMN_PROCESS_NAME, width=20, anchor="w", minwidth=120, stretch=True)
+process_table.column(config.COLUMN_STATUS, width=10, anchor="w", minwidth=100, stretch=True)
+process_table.column(config.COLUMN_LOCATION, width=150, anchor="w", minwidth=150, stretch=True)
 
 scrollbar = tk.Scrollbar(frame_process_table, orient="vertical", command=process_table.yview)
 scrollbar.pack(side="right", fill="y")
@@ -138,6 +138,69 @@ def filter_process():
 
     lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(filtered_data)}")
 
+def auto_adjust_columns():
+    """Ajusta automáticamente el ancho de las columnas al mínimo necesario, respetando minwidth"""
+    if auto_adjust_var.get():  # Solo ajustar si el checkbox está marcado
+        process_table.update_idletasks()  # Actualizar la geometría de la tabla
+        for col in process_table["columns"]:
+            # Obtener el valor de minwidth de la columna
+            min_width = int(process_table.column(col, option="minwidth"))
+
+            # Obtener solo las filas visibles (las que están en la tabla después del filtro)
+            visible_rows = process_table.get_children()
+
+            # Calcular el ancho máximo de la columna basado en el contenido de las celdas visibles
+            max_width = max(
+                font.Font().measure(str(process_table.set(row, col)))  # Medir el ancho del texto
+                for row in visible_rows  # Iterar solo sobre las filas visibles
+            )
+
+            # Asegurarse de que el ancho no sea menor que minwidth
+            adjusted_width = max(max_width + 10, min_width)
+
+            # Ajustar el ancho de la columna
+            process_table.column(col, width=adjusted_width)
+
+auto_adjust_var = tk.BooleanVar(value=True)  # Por defecto, el ajuste automático está habilitado
+
+def open_settings_popup():
+    """Abre un popup con opciones de configuración"""
+    popup = tk.Toplevel(root)
+    popup.title("Configuración")
+    popup.geometry("320x200")
+    popup.resizable(False, False)
+    popup.attributes("-toolwindow", True)
+
+    # Ocular temporalmente y mostrar recién cuando este centrada
+    popup.withdraw()
+    center_window(popup)
+    popup.deiconify()
+
+    # Checkbox para habilitar/deshabilitar el ajuste automático de columnas
+    auto_adjust_checkbox = tk.Checkbutton(popup, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
+    auto_adjust_checkbox.pack(pady=10)
+
+    # Botón para cerrar el popup
+    close_button = ttk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
+    close_button.pack(pady=10)
+
+# Variable para almacenar el ID del temporizador
+resize_timer = None
+
+def on_window_resize(event):
+    """Función que se ejecuta cuando la ventana cambia de tamaño"""
+    global resize_timer
+
+    # Si ya hay un temporizador en marcha, cancelarlo
+    if resize_timer:
+        root.after_cancel(resize_timer)
+
+    # Programar la ejecución de auto_adjust_columns después de 200 ms
+    resize_timer = root.after(200, auto_adjust_columns)
+
+# Vincular el evento de cambio de tamaño de la ventana a la función on_window_resize
+root.bind("<Configure>", on_window_resize)
+
 frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10, fill="x")
 
@@ -148,8 +211,11 @@ entry_search.bind('<Return>', lambda event: filter_process())
 btn_buscar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
 btn_buscar.pack(side="left", padx=5)
 
-btn_udpdate = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
-btn_udpdate.pack(side="left", padx=5)
+btn_update = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
+btn_update.pack(side="left", padx=5)
+
+btn_settings = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=open_settings_popup)
+btn_settings.pack(side="left", padx=5, ipadx=10)
 
 lbl_total = tk.Label(frame_controls, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
 lbl_total.pack(side="left", padx=5)

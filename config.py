@@ -1,6 +1,7 @@
 APP_TITLE = "Adminstrador de procesos"
 APP_ICON = "taskmgr.exe_14_107.ico"
-WINDOW_SIZE = "800x600"
+# WINDOW_SIZE = "640x480"
+WINDOW_SIZE="800x600"
 
 # IDs controls
 COLUMN_ID = 101
@@ -10,6 +11,9 @@ COLUMN_LOCATION = 1031
 BUTTON_SEARCH = 104
 BUTTON_UPDATE = 105
 LABEL_TOTAL = 106
+BUTTON_SETTINGS =107
+CHECKBOX_ADJUST_AUTOMATIC_COLS=108
+BUTTON_CLOSE_SETTINGS = 109
 
 COLUMN_HEADERS = {
     COLUMN_ID : "Id",
@@ -19,9 +23,15 @@ COLUMN_HEADERS = {
 }
 
 BOTTOM_FRAME = {
-    BUTTON_SEARCH : "Buscar (Nombre)",
+    BUTTON_SEARCH : "Buscar",
     BUTTON_UPDATE : "Actualizar",
+    BUTTON_SETTINGS : "Configuración",
     LABEL_TOTAL : "Total"
+}
+
+SETTINGS_OPTIONS = {
+    CHECKBOX_ADJUST_AUTOMATIC_COLS: "Ajuste automático de columna",
+    BUTTON_CLOSE_SETTINGS: "Cerrar"
 }
 
 SORT_ASC_ICON = "▲"
