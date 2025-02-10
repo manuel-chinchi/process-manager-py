@@ -41,17 +41,19 @@ style.configure("Custom.Treeview",
                 )
 
 process_table = ttk.Treeview(frame_process_table, 
-                    columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS), 
+                    columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS, config.COLUMN_LOCATION),
                     show="headings", 
                     style="Custom.Treeview")
 process_table.heading(config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: sort_column(config.COLUMN_ID))
 process_table.heading(config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME],anchor='w', command=lambda: sort_column(config.COLUMN_PROCESS_NAME))
 process_table.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
+process_table.heading(config.COLUMN_LOCATION, text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: sort_column(config.COLUMN_LOCATION))
 style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 
-process_table.column(config.COLUMN_ID, width=100, anchor="w", stretch=True)
-process_table.column(config.COLUMN_PROCESS_NAME, width=350, anchor="w", stretch=True)
+process_table.column(config.COLUMN_ID, width=75, anchor="w", stretch=True)
+process_table.column(config.COLUMN_PROCESS_NAME, width=150, anchor="w", stretch=True)
 process_table.column(config.COLUMN_STATUS, width=150, anchor="w", stretch=True)
+process_table.column(config.COLUMN_LOCATION, width=150, anchor="w", stretch=True)
 
 scrollbar = tk.Scrollbar(frame_process_table, orient="vertical", command=process_table.yview)
 scrollbar.pack(side="right", fill="y")
@@ -59,7 +61,7 @@ scrollbar.pack(side="right", fill="y")
 process_table.config(yscrollcommand=scrollbar.set)
 process_table.pack(expand=True, fill="both")
 
-orden_ascendente = {config.COLUMN_ID: True, config.COLUMN_PROCESS_NAME: True, config.COLUMN_STATUS: True}
+orden_ascendente = {config.COLUMN_ID: True, config.COLUMN_PROCESS_NAME: True, config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
 all_processes = []
 
 def update_table():
@@ -73,22 +75,24 @@ def update_table():
             pid = p.info['pid']
             name = p.info['name']
             status = p.info['status']
-            all_processes.append((pid, name, status))
+            location = psutil.Process(pid).exe()
+            all_processes.append((pid, name, status, location))
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
-    for pid, name, status in all_processes:
-        process_table.insert("", "end", values=(pid, name, status))
+    for pid, name, status, location in all_processes:
+        process_table.insert("", tk.END, values=(pid, name, status, location))
 
     lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(all_processes)}")
 
     process_table.heading(column=config.COLUMN_ID, text=f"{config.COLUMN_HEADERS[config.COLUMN_ID]} {config.SORT_DESC_ICON}")
     process_table.heading(column=config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME])
     process_table.heading(column=config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS])
+    process_table.heading(column=config.COLUMN_LOCATION, text=config.COLUMN_HEADERS[config.COLUMN_LOCATION])
 
 def sort_column(column):
     global orden_ascendente
-    datos = [(process_table.item(row)["values"][0], process_table.item(row)["values"][1], process_table.item(row)["values"][2]) for row in process_table.get_children()]
+    datos = [(process_table.item(row)["values"][0], process_table.item(row)["values"][1], process_table.item(row)["values"][2], process_table.item(row)["values"][3]) for row in process_table.get_children()]
 
     if column == config.COLUMN_ID:
         datos.sort(key=lambda x: int(x[0]), reverse=not orden_ascendente[config.COLUMN_ID])
@@ -99,20 +103,23 @@ def sort_column(column):
     elif column == config.COLUMN_STATUS:
         datos.sort(key=lambda x: x[2].lower(), reverse=not orden_ascendente[config.COLUMN_STATUS])
         orden_ascendente[config.COLUMN_STATUS] = not orden_ascendente[config.COLUMN_STATUS]
+    elif column == config.COLUMN_LOCATION:
+        datos.sort(key=lambda x: x[3].lower(), reverse=not orden_ascendente[config.COLUMN_LOCATION])
+        orden_ascendente[config.COLUMN_LOCATION] = not orden_ascendente[config.COLUMN_LOCATION]
 
     for row in process_table.get_children():
         process_table.delete(row)
 
-    for pid, name, status in datos:
-        process_table.insert("", "end", values=(pid, name, status))
+    for pid, name, status, location in datos:
+        process_table.insert("", "end", values=(pid, name, status, location))
 
-    process_list = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS]
+    process_list = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS, config.COLUMN_LOCATION]
     for col in process_list:
         if col == column:
             symbol = config.SORT_ASC_ICON if orden_ascendente[col] else config.SORT_DESC_ICON
         else:
             symbol = ""
-        text = config.COLUMN_HEADERS[config.COLUMN_ID] if col == config.COLUMN_ID else config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME] if col == config.COLUMN_PROCESS_NAME else config.COLUMN_HEADERS[config.COLUMN_STATUS]
+        text = config.COLUMN_HEADERS[config.COLUMN_ID] if col == config.COLUMN_ID else config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME] if col == config.COLUMN_PROCESS_NAME else config.COLUMN_HEADERS[config.COLUMN_STATUS] if col == config.COLUMN_STATUS else config.COLUMN_HEADERS[config.COLUMN_LOCATION]
         process_table.heading(col, text=f"{text} {symbol}")
 
 def filter_process():
@@ -124,10 +131,10 @@ def filter_process():
     if text == "":
         filtered_data = all_processes
     else:
-        filtered_data = [(pid, name, status) for pid, name, status in all_processes if text in name.lower()]
+        filtered_data = [(pid, name, status, location) for pid, name, status, location in all_processes if text in name.lower()]
 
-    for pid, name, status in filtered_data:
-        process_table.insert("", "end", values=(pid, name, status))
+    for pid, name, status, location in filtered_data:
+        process_table.insert("", "end", values=(pid, name, status, location))
 
     lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(filtered_data)}")
 

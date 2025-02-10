@@ -1,11 +1,12 @@
 APP_TITLE = "Adminstrador de procesos"
 APP_ICON = "taskmgr.exe_14_107.ico"
-WINDOW_SIZE = "640x480"
+WINDOW_SIZE = "800x600"
 
 # IDs controls
 COLUMN_ID = 101
 COLUMN_PROCESS_NAME = 102
 COLUMN_STATUS = 103
+COLUMN_LOCATION = 1031
 BUTTON_SEARCH = 104
 BUTTON_UPDATE = 105
 LABEL_TOTAL = 106
@@ -13,11 +14,12 @@ LABEL_TOTAL = 106
 COLUMN_HEADERS = {
     COLUMN_ID : "Id",
     COLUMN_PROCESS_NAME : "Nombre",
-    COLUMN_STATUS : "Estado"
+    COLUMN_STATUS : "Estado",
+    COLUMN_LOCATION: "Ubicación"
 }
 
 BOTTOM_FRAME = {
-    BUTTON_SEARCH : "Buscar",
+    BUTTON_SEARCH : "Buscar (Nombre)",
     BUTTON_UPDATE : "Actualizar",
     LABEL_TOTAL : "Total"
 }
