@@ -123,7 +123,7 @@ def filter_process():
     for pid, name, status in filtered_data:
         process_table.insert("", "end", values=(pid, name, status))
 
-    lbl_total.config(text=f"{config.BOTTOM_FRAME['label_total']}: {len(filtered_data)}")
+    lbl_total.config(text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(filtered_data)}")
 
 frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10, fill="x")

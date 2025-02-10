@@ -1,6 +1,6 @@
 APP_TITLE = "Adminstrador de procesos"
 APP_ICON = "taskmgr.exe_14_107.ico"
-WINDOW_SIZE = "800x500"
+WINDOW_SIZE = "640x480"
 
 COLUMN_ID = "Id"
 COLUMN_PROCESS_NAME = "ProcessName"
