@@ -202,12 +202,12 @@ def apply_theme(theme):
         popup.config(bg=theme["button_bg"])
     if frame_checks != None:
         frame_checks.config(bg=theme["button_bg"])
-    if close_button != None:
-        close_button.config(bg=theme["button_bg"],fg=theme["button_fg"])
-    if auto_adjust_checkbox != None:
-        auto_adjust_checkbox.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
-    if enable_dark_theme_checkbox != None:
-        enable_dark_theme_checkbox.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
+    if btn_close != None:
+        btn_close.config(bg=theme["button_bg"],fg=theme["button_fg"])
+    if chk_auto_adjust_cols != None:
+        chk_auto_adjust_cols.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
+    if chk_enable_dark_theme != None:
+        chk_enable_dark_theme.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
 
     # Configurar estilos para widgets de ttk
     # style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
@@ -231,13 +231,13 @@ def toggle_theme():
 
 popup = None
 frame_checks = None
-auto_adjust_checkbox = None
-enable_dark_theme_checkbox = None
-close_button = None
+chk_auto_adjust_cols = None
+chk_enable_dark_theme = None
+btn_close = None
 
 def open_settings_popup():
     """Abre un popup con opciones de configuración"""
-    global popup, frame_checks, auto_adjust_checkbox, enable_dark_theme_checkbox, close_button
+    global popup, frame_checks, chk_auto_adjust_cols, chk_enable_dark_theme, btn_close
 
     # Solo crea la ventana si no ha sido creada antes o si ha sido destruida
     if popup is None or not popup.winfo_exists():
@@ -256,14 +256,14 @@ def open_settings_popup():
         frame_checks = tk.Frame(popup)
         frame_checks.pack(padx=10, pady=10, anchor="w")
 
-        auto_adjust_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
-        auto_adjust_checkbox.pack(anchor="w")
+        chk_auto_adjust_cols = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
+        chk_auto_adjust_cols.pack(anchor="w")
 
-        enable_dark_theme_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme, command=toggle_theme)
-        enable_dark_theme_checkbox.pack(anchor="w")
+        chk_enable_dark_theme = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme, command=toggle_theme)
+        chk_enable_dark_theme.pack(anchor="w")
 
-        close_button = tk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
-        close_button.pack(pady=10, ipadx=35)
+        btn_close = tk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
+        btn_close.pack(pady=10, ipadx=35)
     else:
         # Si la ventana ya existe, solo la mostramos
         popup.deiconify()
