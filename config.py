@@ -1,5 +1,9 @@
+def get_dir_file(f):
+    import os
+    return os.path.dirname(os.path.abspath(f))
+
 APP_TITLE = "Adminstrador de procesos"
-APP_ICON = "taskmgr.exe_14_107.ico"
+APP_ICON = get_dir_file(__file__) + "/" + "taskmgr.exe_14_107.ico"
 # WINDOW_SIZE = "640x480"
 WINDOW_SIZE="800x600"
 
@@ -67,7 +71,9 @@ DARK_THEME = {
     "button_fg": "#FFFFFF",  # Texto de botones claro
     "treeview_bg": "#2E2E2E",  # Fondo de Treeview oscuro
     "treeview_fg": "#FFFFFF",  # Texto de Treeview claro
+    # "treeview_heading_bg": "#334F66",  # Fondo de encabezados de Treeview oscuro
     "treeview_heading_bg": "#1E1E1E",  # Fondo de encabezados de Treeview oscuro
+    # "treeview_heading_fg": "#CDE8FF",  # Fondo de encabezados de Treeview oscuro
     "treeview_heading_fg": "#FFFFFF",  # Texto de encabezados de Treeview claro
     "checkbox_bg": "#2980B9"
 }

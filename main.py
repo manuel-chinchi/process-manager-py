@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, font
 import psutil
-import config
+import config, hacky
 
 config.adjust_dpi()
 
@@ -189,6 +189,7 @@ def apply_theme(theme):
     global current_theme
     current_theme = theme
 
+    hacky.set_bg_color_title_bar(root, color=theme["name"])
     # Configurar colores para widgets de tkinter
     root.config(bg=theme["bg"])
     frame_process_table.config(bg=theme["bg"])
@@ -199,6 +200,7 @@ def apply_theme(theme):
     btn_settings.config(bg=theme["button_bg"], fg=theme["button_fg"])
     btn_update.config(bg=theme["button_bg"], fg=theme["button_fg"])
     if popup != None:
+        hacky.set_bg_color_title_bar(popup, color=theme["name"])
         popup.config(bg=theme["button_bg"])
     if frame_checks != None:
         frame_checks.config(bg=theme["button_bg"])
@@ -228,6 +230,9 @@ def toggle_theme():
         apply_theme(config.DARK_THEME)
     else:
         apply_theme(config.LIGHT_THEME)
+
+    hacky.refresh_window(root, sleep=1000)
+    hacky.refresh_window(popup, sleep=1200)
 
 popup = None
 frame_checks = None
