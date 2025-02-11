@@ -162,12 +162,13 @@ def auto_adjust_columns():
             process_table.column(col, width=adjusted_width)
 
 auto_adjust_var = tk.BooleanVar(value=True)  # Por defecto, el ajuste automático está habilitado
+enable_dark_theme = tk.BooleanVar(value=False) # Tema oscuro
 
 def open_settings_popup():
     """Abre un popup con opciones de configuración"""
     popup = tk.Toplevel(root)
     popup.title("Configuración")
-    popup.geometry("320x200")
+    popup.geometry("320x140")
     popup.resizable(False, False)
     popup.attributes("-toolwindow", True)
 
@@ -176,11 +177,16 @@ def open_settings_popup():
     center_window(popup)
     popup.deiconify()
 
-    # Checkbox para habilitar/deshabilitar el ajuste automático de columnas
-    auto_adjust_checkbox = tk.Checkbutton(popup, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
-    auto_adjust_checkbox.pack(pady=10)
+    frame_checks = tk.Frame(popup)
+    frame_checks.pack( padx=10, pady=10,anchor="w")
 
-    # Botón para cerrar el popup
+    # Checkbox para habilitar/deshabilitar el ajuste automático de columnas
+    auto_adjust_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
+    auto_adjust_checkbox.pack(anchor="w")
+
+    enable_dark_theme_checkbox= tk.Checkbutton(frame_checks,text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme)
+    enable_dark_theme_checkbox.pack( anchor="w")
+
     close_button = ttk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
     close_button.pack(pady=10)
 
