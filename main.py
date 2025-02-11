@@ -211,6 +211,7 @@ def apply_theme(theme):
 
     # Configurar estilos para widgets de ttk
     # style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
+    style.theme_use("clam")
     style.configure("Custom.Treeview", background=theme["treeview_bg"], foreground=theme["treeview_fg"], fieldbackground=theme["treeview_bg"])
     style.configure("Treeview.Heading", background=theme["treeview_heading_bg"], foreground=theme["treeview_heading_fg"], relief="flat")
     style.map("Treeview.Heading",
