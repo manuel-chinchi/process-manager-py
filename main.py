@@ -7,6 +7,19 @@ config.adjust_dpi()
 
 root = tk.Tk()
 style = ttk.Style()
+
+# @TODO Gracias a la respuesta de https://stackoverflow.com/questions/42708050/tkinter-treeview-heading-styling/42738716#42738716 
+style.element_create("Custom.Treeheading.border", "from", "default")
+style.layout("Custom.Treeview.Heading", [
+    ("Custom.Treeheading.cell", {'sticky': 'nswe'}),
+    ("Custom.Treeheading.border", {'sticky':'nswe', 'children': [
+        ("Custom.Treeheading.padding", {'sticky':'nswe', 'children': [
+            ("Custom.Treeheading.image", {'side':'right', 'sticky':''}),
+            ("Custom.Treeheading.text", {'sticky':'we'})
+        ]})
+    ]}),
+])
+# style.theme_use("clam") # @FIXME Sin esto no anda el cambio de thema para Treeview.Heading
 root.title(config.APP_TITLE)
 root.geometry(config.WINDOW_SIZE)  # Ajustamos el tamaño para incluir más columnas
 
@@ -40,6 +53,8 @@ style.configure("Custom.Treeview",
                 relief="flat",
                 )
 
+# @TODO Original style headers
+# style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 process_table = ttk.Treeview(frame_process_table, 
                     columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS, config.COLUMN_LOCATION),
                     show="headings", 
@@ -48,7 +63,6 @@ process_table.heading(config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN
 process_table.heading(config.COLUMN_PROCESS_NAME, text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME],anchor='w', command=lambda: sort_column(config.COLUMN_PROCESS_NAME))
 process_table.heading(config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
 process_table.heading(config.COLUMN_LOCATION, text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: sort_column(config.COLUMN_LOCATION))
-style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 
 process_table.column(config.COLUMN_ID, width=5, anchor="w", minwidth=75, stretch=True)
 process_table.column(config.COLUMN_PROCESS_NAME, width=20, anchor="w", minwidth=120, stretch=True)
@@ -164,6 +178,40 @@ def auto_adjust_columns():
 auto_adjust_var = tk.BooleanVar(value=True)  # Por defecto, el ajuste automático está habilitado
 enable_dark_theme = tk.BooleanVar(value=False) # Tema oscuro
 
+def apply_theme(theme):
+    """Aplica un tema a la interfaz gráfica"""
+    global current_theme
+    current_theme = theme
+
+    # Configurar colores para widgets de tkinter
+    root.config(bg=theme["bg"])
+    frame_process_table.config(bg=theme["bg"])
+    frame_controls.config(bg=theme["bg"])
+    lbl_total.config(bg=theme["bg"], fg=theme["fg"])
+    entry_search.config(bg=theme["button_bg"], fg=theme["fg"], insertbackground=theme["fg"])
+    btn_buscar.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    btn_settings.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    btn_update.config(bg=theme["button_bg"], fg=theme["button_fg"])
+
+    # Configurar estilos para widgets de ttk
+    style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
+    style.configure("Custom.Treeview", background=theme["treeview_bg"], foreground=theme["treeview_fg"], fieldbackground=theme["treeview_bg"])
+    style.configure("Treeview.Heading", background=theme["treeview_heading_bg"], foreground=theme["treeview_heading_fg"], relief="flat")
+    style.map("Treeview.Heading",
+          background=[("active", "#2980B9"), ("!active", "#3498DB")],
+          foreground=[("active", "white"), ("!active", "white")])
+    style.map("Custom.Treeview", background=[("selected", theme["treeview_heading_bg"])], foreground=[("selected", theme["treeview_heading_fg"])])
+
+    # Actualizar la tabla para reflejar los cambios
+    # update_table()
+
+def toggle_theme():
+    """Alterna entre el tema claro y oscuro"""
+    if current_theme == config.LIGHT_THEME:
+        apply_theme(config.DARK_THEME)
+    else:
+        apply_theme(config.LIGHT_THEME)
+
 def open_settings_popup():
     """Abre un popup con opciones de configuración"""
     popup = tk.Toplevel(root)
@@ -184,7 +232,7 @@ def open_settings_popup():
     auto_adjust_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
     auto_adjust_checkbox.pack(anchor="w")
 
-    enable_dark_theme_checkbox= tk.Checkbutton(frame_checks,text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme)
+    enable_dark_theme_checkbox= tk.Checkbutton(frame_checks,text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme, command=toggle_theme)
     enable_dark_theme_checkbox.pack( anchor="w")
 
     close_button = ttk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
@@ -211,20 +259,22 @@ frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10, fill="x")
 
 entry_search = tk.Entry(frame_controls, width=30)
-entry_search.pack(side="left", padx=5, ipady=2)
+entry_search.pack(side="left", padx=5, ipady=5)
 entry_search.bind('<Return>', lambda event: filter_process())
 
-btn_buscar = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
-btn_buscar.pack(side="left", padx=5)
+btn_buscar = tk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
+btn_buscar.pack(side="left", padx=5, ipadx=20)
 
-btn_update = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
-btn_update.pack(side="left", padx=5)
+btn_update = tk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=update_table)
+btn_update.pack(side="left", padx=2, ipadx=15)
 
-btn_settings = ttk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=open_settings_popup)
+btn_settings = tk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=open_settings_popup)
 btn_settings.pack(side="left", padx=5, ipadx=10)
 
 lbl_total = tk.Label(frame_controls, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
 lbl_total.pack(side="left", padx=5)
+
+apply_theme(config.LIGHT_THEME)
 
 update_table()
 
