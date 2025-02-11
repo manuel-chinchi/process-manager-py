@@ -178,6 +178,11 @@ def auto_adjust_columns():
 auto_adjust_var = tk.BooleanVar(value=True)  # Por defecto, el ajuste automático está habilitado
 enable_dark_theme = tk.BooleanVar(value=False) # Tema oscuro
 
+# @FIXME Proble con Tema Oscuro activado
+# En algunos controles como los botones o el texto de los checkbox al presionar se ve un parpadeo claro
+# esto habría que cambiarlo en el tema oscuro o también configurar un color (si se puede).
+# @TODO Averiguar si también se puede cambiar el color del marco de la ventana, sobre todo para el tema
+# nocturno
 def apply_theme(theme):
     """Aplica un tema a la interfaz gráfica"""
     global current_theme
@@ -192,9 +197,19 @@ def apply_theme(theme):
     btn_buscar.config(bg=theme["button_bg"], fg=theme["button_fg"])
     btn_settings.config(bg=theme["button_bg"], fg=theme["button_fg"])
     btn_update.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    if popup != None:
+        popup.config(bg=theme["button_bg"])
+    if frame_checks != None:
+        frame_checks.config(bg=theme["button_bg"])
+    if close_button != None:
+        close_button.config(bg=theme["button_bg"],fg=theme["button_fg"])
+    if auto_adjust_checkbox != None:
+        auto_adjust_checkbox.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
+    if enable_dark_theme_checkbox != None:
+        enable_dark_theme_checkbox.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
 
     # Configurar estilos para widgets de ttk
-    style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
+    # style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
     style.configure("Custom.Treeview", background=theme["treeview_bg"], foreground=theme["treeview_fg"], fieldbackground=theme["treeview_bg"])
     style.configure("Treeview.Heading", background=theme["treeview_heading_bg"], foreground=theme["treeview_heading_fg"], relief="flat")
     style.map("Treeview.Heading",
@@ -212,31 +227,46 @@ def toggle_theme():
     else:
         apply_theme(config.LIGHT_THEME)
 
+popup = None
+frame_checks = None
+auto_adjust_checkbox = None
+enable_dark_theme_checkbox = None
+close_button = None
+
 def open_settings_popup():
     """Abre un popup con opciones de configuración"""
-    popup = tk.Toplevel(root)
-    popup.title("Configuración")
-    popup.geometry("320x140")
-    popup.resizable(False, False)
-    popup.attributes("-toolwindow", True)
+    global popup, frame_checks, auto_adjust_checkbox, enable_dark_theme_checkbox, close_button
 
-    # Ocular temporalmente y mostrar recién cuando este centrada
-    popup.withdraw()
-    center_window(popup)
-    popup.deiconify()
+    # Solo crea la ventana si no ha sido creada antes o si ha sido destruida
+    if popup is None or not popup.winfo_exists():
+        popup = tk.Toplevel(root)
+        popup.title(config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
+        popup.geometry(config.SETTINGS_OPTIONS[config.SIZE_WND_SETTINGS])
+        popup.resizable(False, False)
+        popup.attributes("-toolwindow", True)
 
-    frame_checks = tk.Frame(popup)
-    frame_checks.pack( padx=10, pady=10,anchor="w")
+        # Ocultar temporalmente y mostrar recién cuando esté centrada
+        popup.withdraw()
+        center_window(popup)
+        popup.deiconify()
 
-    # Checkbox para habilitar/deshabilitar el ajuste automático de columnas
-    auto_adjust_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
-    auto_adjust_checkbox.pack(anchor="w")
+        # Crear los controles solo una vez
+        frame_checks = tk.Frame(popup)
+        frame_checks.pack(padx=10, pady=10, anchor="w")
 
-    enable_dark_theme_checkbox= tk.Checkbutton(frame_checks,text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme, command=toggle_theme)
-    enable_dark_theme_checkbox.pack( anchor="w")
+        auto_adjust_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=auto_adjust_var)
+        auto_adjust_checkbox.pack(anchor="w")
 
-    close_button = ttk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
-    close_button.pack(pady=10)
+        enable_dark_theme_checkbox = tk.Checkbutton(frame_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=enable_dark_theme, command=toggle_theme)
+        enable_dark_theme_checkbox.pack(anchor="w")
+
+        close_button = tk.Button(popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=popup.destroy)
+        close_button.pack(pady=10, ipadx=35)
+    else:
+        # Si la ventana ya existe, solo la mostramos
+        popup.deiconify()
+    # @TODO Se aplica a todos los controles, solo debería actualizar esta ventana. ¿Esta bien?
+    apply_theme(current_theme)
 
 # Variable para almacenar el ID del temporizador
 resize_timer = None
