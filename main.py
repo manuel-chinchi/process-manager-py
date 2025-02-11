@@ -231,8 +231,10 @@ def toggle_theme():
     else:
         apply_theme(config.LIGHT_THEME)
 
-    hacky.refresh_window(root, sleep=1000)
-    hacky.refresh_window(popup, sleep=1200)
+    # FIXME Posicion de ventanas
+    # Se pierde la ultima posicion de la ventana y es algo incomo que se recupere en la posicion y tamaño original
+    hacky.refresh_window(root, sleep=1200)
+    hacky.refresh_window(popup, sleep=1800)
 
 popup = None
 frame_checks = None
