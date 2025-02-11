@@ -57,7 +57,8 @@ LIGHT_THEME = {
     "treeview_heading_fg": "#000000",  # Manteniendo el azul que ya tenías
     "checkbox_bg":"#FFFFFF"
 }
-# @TODO Total Commander no cambia el color de selección de fila entre temas (tomar sugerencia ya que es mas visible)
+# TODO Pendiente (tema nocturno)
+# Total Commander no cambia el color de selección de fila entre temas (tomar sugerencia ya que es mas visible)
 DARK_THEME = {
     "name": "dark",
     "bg": "#2E2E2E",  # Fondo oscuro
@@ -72,7 +73,8 @@ DARK_THEME = {
 }
 
 def adjust_dpi():
-    # @TODO solucion DPI alto en pantallas https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
+    # TODO Solucion DPI alto (controles borrosos)
+    # Copiado de https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
     import ctypes
     try: # >= win 8.1
         ctypes.windll.shcore.SetProcessDpiAwareness(2)

@@ -8,7 +8,7 @@ config.adjust_dpi()
 root = tk.Tk()
 style = ttk.Style()
 
-# @TODO Gracias a la respuesta de https://stackoverflow.com/questions/42708050/tkinter-treeview-heading-styling/42738716#42738716 
+# TODO copiado de https://stackoverflow.com/questions/42708050/tkinter-treeview-heading-styling/42738716#42738716 
 style.element_create("Custom.Treeheading.border", "from", "default")
 style.layout("Custom.Treeview.Heading", [
     ("Custom.Treeheading.cell", {'sticky': 'nswe'}),
@@ -25,7 +25,8 @@ root.geometry(config.WINDOW_SIZE)  # Ajustamos el tamaño para incluir más colu
 
 # Hidden window temporally
 root.withdraw()
-# @TODO do not load this instruction before '.withdraw' otherwise a small blink occurs before loading the window completely
+# TODO Carga de icono (advertencia)
+# No colocar esta función antes de '.withdraw' de lo contrario, se produce un pequeño parpadeo antes de cargar la ventana por completo
 root.iconbitmap(config.APP_ICON)
 
 def center_window(window):
@@ -53,7 +54,7 @@ style.configure("Custom.Treeview",
                 relief="flat",
                 )
 
-# @TODO Original style headers
+# TODO Estilo original cabeceras
 # style.configure("Treeview.Heading", background="#B0E0E6", foreground="#0078D7", font=("TkDefaultFont", 10, "bold"))
 process_table = ttk.Treeview(frame_process_table, 
                     columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME, config.COLUMN_STATUS, config.COLUMN_LOCATION),
@@ -178,11 +179,11 @@ def auto_adjust_columns():
 auto_adjust_var = tk.BooleanVar(value=True)  # Por defecto, el ajuste automático está habilitado
 enable_dark_theme = tk.BooleanVar(value=False) # Tema oscuro
 
-# @FIXME Proble con Tema Oscuro activado
+# FIXME Problema al cliquear controles (tema oscuro)
 # En algunos controles como los botones o el texto de los checkbox al presionar se ve un parpadeo claro
 # esto habría que cambiarlo en el tema oscuro o también configurar un color (si se puede).
-# @TODO Averiguar si también se puede cambiar el color del marco de la ventana, sobre todo para el tema
-# nocturno
+# TODO Marco de ventana (tema oscuro)
+# Averiguar si se puede cambiar el color del marco de la ventana
 def apply_theme(theme):
     """Aplica un tema a la interfaz gráfica"""
     global current_theme
@@ -265,7 +266,8 @@ def open_settings_popup():
     else:
         # Si la ventana ya existe, solo la mostramos
         popup.deiconify()
-    # @TODO Se aplica a todos los controles, solo debería actualizar esta ventana. ¿Esta bien?
+    # TODO Posible mejora
+    # refactorizar logica, ver si se puede mejorar esto y no hacer esta llamada
     apply_theme(current_theme)
 
 # Variable para almacenar el ID del temporizador
