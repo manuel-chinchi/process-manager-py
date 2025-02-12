@@ -3,7 +3,7 @@ def get_dir_file(f):
     return os.path.dirname(os.path.abspath(f))
 
 APP_TITLE = "Adminstrador de procesos"
-APP_ICON = get_dir_file(__file__) + "/" + "taskmgr.exe_14_107.ico"
+APP_ICON = get_dir_file(__file__) + "/Icons/taskmgr.exe_14_107.ico"
 # WINDOW_SIZE = "640x480"
 WINDOW_SIZE="800x600"
 
@@ -24,7 +24,7 @@ TITLE_WND_SETTINGS = 112
 SIZE_WND_SETTINGS = 113
 
 COLUMN_HEADERS = {
-    COLUMN_ID : "Id",
+    COLUMN_ID : "PID",
     COLUMN_PROCESS_NAME : "Nombre",
     COLUMN_STATUS : "Estado",
     COLUMN_LOCATION: "Ubicación"
