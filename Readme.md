@@ -1,5 +1,5 @@
-# Task Manager Py
-A simple task manager program made in Python + TKinter
+# Process Manager Py
+A simple Process manager program made in Python + TKinter
 
 ## Libraries
 
@@ -27,14 +27,3 @@ A simple task manager program made in Python + TKinter
 
 
 <!-- software made in Argentina -->
-
-<!-- # Crear entorno virtual
-
-```
-python -m pip venv .venv
-source .venvpk/Scripts/Activate
-
-python -m pip install psutil
-# actualizar si es que sale el error "ModuleNotFoundError: No module named 'psutil'"
-python -m pip install --upgrade pip
-``` -->
