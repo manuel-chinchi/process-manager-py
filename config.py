@@ -41,7 +41,7 @@ SETTINGS_OPTIONS = {
     TITLE_WND_SETTINGS : "Configuración",
     SIZE_WND_SETTINGS: "320x140",
     CHECKBOX_ADJUST_AUTOMATIC_COLS: "Ajuste automático de columna",
-    CHECKBOX_DARK_THEME: "Activar tema oscuro",
+    CHECKBOX_DARK_THEME: "Activar tema oscuro (requiere reiniciar)",
     BUTTON_CLOSE_SETTINGS: "Cerrar"
 }
 
