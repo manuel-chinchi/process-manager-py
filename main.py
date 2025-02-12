@@ -165,6 +165,8 @@ def auto_adjust_columns():
             visible_rows = process_table.get_children()
 
             # Calcular el ancho máximo de la columna basado en el contenido de las celdas visibles
+            # #FIXME Error si hay 0 resultados 
+            # Si no hay resultados al filtrar se produce un error en esta linea
             max_width = max(
                 font.Font().measure(str(process_table.set(row, col)))  # Medir el ancho del texto
                 for row in visible_rows  # Iterar solo sobre las filas visibles
@@ -196,20 +198,20 @@ def apply_theme(theme):
     frame_controls.config(bg=theme["bg"])
     lbl_total.config(bg=theme["bg"], fg=theme["fg"])
     entry_search.config(bg=theme["button_bg"], fg=theme["fg"], insertbackground=theme["fg"])
-    btn_buscar.config(bg=theme["button_bg"], fg=theme["button_fg"])
-    btn_settings.config(bg=theme["button_bg"], fg=theme["button_fg"])
-    btn_update.config(bg=theme["button_bg"], fg=theme["button_fg"])
+    btn_buscar.config(bg=theme["button_bg"], fg=theme["button_fg"], activebackground=theme["button_active_bg"], activeforeground=theme["button_active_fg"])
+    btn_settings.config(bg=theme["button_bg"], fg=theme["button_fg"], activebackground=theme["button_active_bg"], activeforeground=theme["button_active_fg"])
+    btn_update.config(bg=theme["button_bg"], fg=theme["button_fg"], activebackground=theme["button_active_bg"], activeforeground=theme["button_active_fg"])
     if popup != None:
         hacky.set_bg_color_title_bar(popup, color=theme["name"])
         popup.config(bg=theme["button_bg"])
     if frame_checks != None:
         frame_checks.config(bg=theme["button_bg"])
     if btn_close != None:
-        btn_close.config(bg=theme["button_bg"],fg=theme["button_fg"])
+        btn_close.config(bg=theme["button_bg"],fg=theme["button_fg"], activebackground=theme["button_active_bg"], activeforeground=theme["button_active_fg"])
     if chk_auto_adjust_cols != None:
-        chk_auto_adjust_cols.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
+        chk_auto_adjust_cols.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"], activebackground=theme["checkbox_active_bg"], activeforeground=theme["checkbox_active_fg"])
     if chk_enable_dark_theme != None:
-        chk_enable_dark_theme.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"])
+        chk_enable_dark_theme.config(bg=theme["button_bg"],fg=theme["button_fg"], selectcolor=theme["checkbox_bg"], activebackground=theme["checkbox_active_bg"], activeforeground=theme["checkbox_active_fg"])
 
     # Configurar estilos para widgets de ttk
     # style.configure("TButton", background=theme["button_bg"], foreground=theme["button_fg"])
@@ -233,6 +235,8 @@ def toggle_theme():
 
     # FIXME Posicion de ventanas
     # Se pierde la ultima posicion de la ventana y es algo incomo que se recupere en la posicion y tamaño original
+    # FIXME Marco de ventana popup
+    # Si se cierra la ventana popup y luego se abre en modo oscuro el marco superior no se pinta correctamente
     hacky.refresh_window(root, sleep=1200)
     hacky.refresh_window(popup, sleep=1800)
 
@@ -299,7 +303,7 @@ frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10, fill="x")
 
 entry_search = tk.Entry(frame_controls, width=30)
-entry_search.pack(side="left", padx=5, ipady=5)
+entry_search.pack(side="left", padx=5, ipady=6)
 entry_search.bind('<Return>', lambda event: filter_process())
 
 btn_buscar = tk.Button(frame_controls, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=filter_process)
