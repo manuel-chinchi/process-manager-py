@@ -8,21 +8,7 @@ config.adjust_dpi()
 root = tk.Tk()
 style = ttk.Style()
 
-# NOTE Copiado de internet
-# https://stackoverflow.com/questions/42708050/tkinter-treeview-heading-styling/42738716#42738716
-style.element_create("Custom.Treeheading.border", "from", "default")
-style.layout("Custom.Treeview.Heading", [
-    ("Custom.Treeheading.cell", {'sticky': 'nswe'}),
-    ("Custom.Treeheading.border", {'sticky': 'nswe', 'children': [
-        ("Custom.Treeheading.padding", {'sticky': 'nswe', 'children': [
-            ("Custom.Treeheading.image", {'side': 'right', 'sticky': ''}),
-            ("Custom.Treeheading.text", {'sticky': 'we'})
-        ]})
-    ]}),
-])
-# style.theme_use("clam") # @FIXME Sin esto no anda el cambio de thema para Treeview.Heading
 root.title(config.APP_TITLE)
-# Ajustamos el tamaño para incluir más columnas
 root.geometry(config.WINDOW_SIZE)
 
 # Hidden window temporally
@@ -53,8 +39,19 @@ frm_main = tk.Frame(root)
 frm_main.pack(expand=True, fill="both")
 # NOTE Permite achicar verticalmente el frame principal sin deformar el panel inferior
 frm_main.propagate(False)
-
+# NOTE Copiado de internet
+# https://stackoverflow.com/questions/42708050/tkinter-treeview-heading-styling/42738716#42738716
 style = ttk.Style(root)
+style.element_create("Custom.Treeheading.border", "from", "default")
+style.layout("Custom.Treeview.Heading", [
+    ("Custom.Treeheading.cell", {'sticky': 'nswe'}),
+    ("Custom.Treeheading.border", {'sticky': 'nswe', 'children': [
+        ("Custom.Treeheading.padding", {'sticky': 'nswe', 'children': [
+            ("Custom.Treeheading.image", {'side': 'right', 'sticky': ''}),
+            ("Custom.Treeheading.text", {'sticky': 'we'})
+        ]})
+    ]}),
+])
 style.configure("Custom.Treeview", borderwidth=0, relief="flat")
 
 tree_processes = ttk.Treeview(frm_main,
@@ -211,11 +208,14 @@ def auto_adjust_columns():
             visible_rows = tree_processes.get_children()
 
             # Calcular el ancho máximo de la columna basado en el contenido de las celdas visibles
-            # #FIXME Error si hay 0 resultados
-            # Si no hay resultados al filtrar se produce un error en esta linea
+            # TODO Corregido parcialmente
+            # Cuando no hay resultados al filtrar no debería reajustar las columnas porque la experiencia
+            # de usuario se siente rara.
             max_width = max(
-                font.Font().measure(str(tree_processes.set(row, col)))  # Medir el ancho del texto
-                for row in visible_rows  # Iterar solo sobre las filas visibles
+                [font.Font().measure(str(tree_processes.set(row, col)))  # Medir el ancho del texto
+                for row in visible_rows]  # Iterar solo sobre las filas visibles
+                or
+                [min_width]
             )
 
             # Asegurarse de que el ancho no sea menor que minwidth
