@@ -74,7 +74,7 @@ tree_processes.heading(config.COLUMN_LOCATION,
 tree_processes.column(config.COLUMN_ID, width=5,
                       anchor="w", minwidth=75, stretch=True)
 tree_processes.column(config.COLUMN_PROCESS_NAME, width=20,
-                      anchor="w", minwidth=120, stretch=True)
+                      anchor="w", minwidth=180, stretch=True)
 tree_processes.column(config.COLUMN_STATUS, width=10,
                       anchor="w", minwidth=100, stretch=True)
 tree_processes.column(config.COLUMN_LOCATION, width=150,
@@ -106,14 +106,23 @@ def update_table():
 
     all_processes = []
     for process in psutil.process_iter(attrs=['pid', 'name', 'status']):
+        pid=None
+        name=None
+        status=None
+        location=None
         try:
             pid = process.info['pid']
             name = process.info['name']
             status = process.info['status']
             location = psutil.Process(pid).exe()
-            all_processes.append((pid, name, status, location))
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
+            print(f"> ERROR: Error al ejecutar psutil.process_iter en 'update_table'. pid:{pid}")
+            pid = process.info['pid']
+            name = process.info['name']
+            status = "N/A"
+            location = "N/A"
+
+        all_processes.append((pid, name or "-", status, location or "-"))
 
     for pid, name, status, location in all_processes:
         tree_processes.insert("", tk.END, values=(pid, name, status, location))
