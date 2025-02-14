@@ -50,6 +50,8 @@ root.deiconify()
 # Resto del código (frame_tabla, tabla, scrollbar, etc.)
 frm_main = tk.Frame(root)
 frm_main.pack(expand=True, fill="both")
+# NOTE Permite achicar verticalmente el frame principal sin deformar el panel inferior
+frm_main.propagate(False)
 
 style = ttk.Style(root)
 style.configure("Custom.Treeview", borderwidth=0, relief="flat")
@@ -68,7 +70,7 @@ tree_processes.heading(config.COLUMN_PROCESS_NAME,
 tree_processes.heading(
     config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: sort_column(config.COLUMN_STATUS))
 tree_processes.heading(config.COLUMN_LOCATION,
-                        text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: sort_column(config.COLUMN_LOCATION))
+                       text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: sort_column(config.COLUMN_LOCATION))
 
 tree_processes.column(config.COLUMN_ID, width=5,
                       anchor="w", minwidth=75, stretch=True)
@@ -279,8 +281,6 @@ def apply_theme(theme):
                           ("!selected", theme["treeview_foreground_!selected"])],
               # style.configure(fieldbackground=theme["bg"])
               fieldbackground=theme["bg"])
-
-    pass
 
 
 def toggle_theme():
