@@ -139,8 +139,9 @@ DARK_THEME = {
 
 
 def adjust_dpi():
-    # TODO Solucion DPI alto (controles borrosos)
-    # Copiado de https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
+    # NOTE Solucion DPI alto
+    # En pantallas con DPI alto se soluciona la vista borrosa de los controles
+    # https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
     import ctypes
     try:  # >= win 8.1
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
