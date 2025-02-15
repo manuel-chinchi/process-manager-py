@@ -45,7 +45,7 @@ SETTINGS_OPTIONS = {
     TITLE_WND_SETTINGS: "Configuración",
     SIZE_WND_SETTINGS: "320x140",
     CHECKBOX_ADJUST_AUTOMATIC_COLS: "Ajuste automático de columna",
-    CHECKBOX_DARK_THEME: "Activar tema oscuro (requiere reiniciar)",
+    CHECKBOX_DARK_THEME: "Activar tema oscuro (experimental)",
     BUTTON_CLOSE_SETTINGS: "Cerrar"
 }
 
@@ -62,7 +62,7 @@ COLOR_WHITE4 = "#C0C0C0"
 COLOR_BLACK0 = "#000000"
 COLOR_BLACK1 = "#1E1E1E"
 COLOR_BLACK2 = "#2E2E2E"
-COLOR_BLACK3 = "#3E3E3E"  # no usado
+COLOR_BLACK3 = "#3E3E3E"
 COLOR_BLACK4 = "#4E4E4E"
 COLOR_SKYBLUE0 = "#2980B9"
 COLOR_SKYBLUE1 = "#3498DB"
@@ -97,7 +97,6 @@ LIGHT_THEME = {
     "treeview_fg": COLOR_BLACK0,
     "treeview_background_selected": COLOR_SKYBLUE5,  # color de fila seleccionada
     "treeview_background_!selected": COLOR_WHITE0,
-    # Manteniendo el azul que ya tenías
     "treeview_foreground_selected": COLOR_BLACK0,
     "treeview_foreground_!selected": COLOR_BLACK0,
     "checkbox_bg": COLOR_WHITE1,
@@ -153,7 +152,7 @@ def set_bg_color_title_bar(window, color=THEME_LIGHT):
     # HACK solucion no convencional
     # https://stackoverflow.com/questions/23836000/can-i-change-the-title-bar-in-tkinter
     """
-    MORE INFO:
+    Mas informacíón:
     https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
     """
     window.update()
@@ -161,7 +160,7 @@ def set_bg_color_title_bar(window, color=THEME_LIGHT):
     set_window_attribute = ctypes.windll.dwmapi.DwmSetWindowAttribute
     get_parent = ctypes.windll.user32.GetParent
     hwnd = get_parent(window.winfo_id())
-    rendering_policy = DWMWA_USE_IMMERSIVE_DARK_MODE
+    # rendering_policy = DWMWA_USE_IMMERSIVE_DARK_MODE
     value = 0
     if color == THEME_LIGHT:
         value = 0  # blanco
@@ -169,5 +168,5 @@ def set_bg_color_title_bar(window, color=THEME_LIGHT):
         value = 2  # negro
     # TODO Valores 0,2 son internos de Window para colores (investigar)
     value = ctypes.c_int(value)
-    set_window_attribute(hwnd, 20, ctypes.byref(value),
+    set_window_attribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(value),
                          ctypes.sizeof(value))
