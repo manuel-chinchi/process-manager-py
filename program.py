@@ -9,22 +9,22 @@ config.adjust_dpi()
 resize_timer = None
 
 
-def refresh_window(window, sleep=1000):
+def refresh_window(window: tk.Tk, sleep: int = 1000):
     """Fuerza la actualización del marco superior"""
     window.update_idletasks()
-    window.withdraw()  # Oculta la ventana temporalmente
-    window.after(sleep, window.deiconify)  # La vuelve a mostrar
+    window.withdraw()
+    window.after(sleep, window.deiconify)
 
 
-def center_window(window):
-    window.update_idletasks()  # Actualizar la geometría de la ventana
+def center_window_on_screen(window: tk.Tk):
+    window.update_idletasks()
     width_wnd = window.winfo_width()
     height_wnd = window.winfo_height()
     width_screen = window.winfo_screenwidth()
     height_screen = window.winfo_screenheight()
     x = (width_screen // 2) - (width_wnd // 2)
     y = (height_screen // 2) - (height_wnd // 2)
-    window.geometry(f"+{x}+{y}")  # Establecer la posición de la ventana
+    window.geometry(f"+{x}+{y}")
 
 
 class ProcessManager:
@@ -32,17 +32,18 @@ class ProcessManager:
         self.root = root
         self.style = ttk.Style(self.root)
 
-        # Set values in root
+        # Main window ---------------------------------
         self.root.title(config.APP_TITLE)
         self.root.geometry(config.WINDOW_SIZE)
         self.root.withdraw()
         self.root.iconbitmap(config.APP_ICON)
+        self.root.bind("<Configure>", self.on_window_resize)
 
         self.frm_main = tk.Frame(self.root)
         self.frm_main.pack(expand=True, fill="both")
         self.frm_main.propagate(False)
 
-        # Antes de crear los controles defino el estilo (creo que va aca como minimo, sino despues puede no andar bien)
+        # Styles ---------------------------------
         self.style = ttk.Style(self.root)
         self.style.element_create(
             "Custom.Treeheading.border", "from", "default")
@@ -63,7 +64,6 @@ class ProcessManager:
                                                     config.COLUMN_STATUS, config.COLUMN_LOCATION),
                                            show="headings",
                                            style="Custom.Treeview")
-
         self.tree_processes.heading(
             config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: self.sort_column(config.COLUMN_ID))
         self.tree_processes.heading(config.COLUMN_PROCESS_NAME,
@@ -72,7 +72,6 @@ class ProcessManager:
             config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: self.sort_column(config.COLUMN_STATUS))
         self.tree_processes.heading(config.COLUMN_LOCATION,
                                     text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: self.sort_column(config.COLUMN_LOCATION))
-
         self.tree_processes.column(config.COLUMN_ID, width=5,
                                    anchor="w", minwidth=75, stretch=True)
         self.tree_processes.column(config.COLUMN_PROCESS_NAME, width=20,
@@ -86,52 +85,44 @@ class ProcessManager:
                                      command=self.tree_processes.yview)
         self.scb_tree.pack(side="right", fill="y")
 
-        # Cargo el scroolbar-v en el tree
+        # Scrollbar Y
         self.tree_processes.config(yscrollcommand=self.scb_tree.set)
         self.tree_processes.pack(expand=True, fill="both")
 
-        # Popup window settings
-        # self.popup = tk.Toplevel(self.root)
-        # self.popup.title(config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
-        # self.popup.geometry(config.SETTINGS_OPTIONS[config.SIZE_WND_SETTINGS])
-        # self.popup.resizable(False, False)
-        # self.popup.attributes("-toolwindow", True)
-
+        # Config window ---------------------------------
         self.popup = None
         self.frm_checks = None
-        self.chk_auto_adjust_cols = None
-        self.chk_enable_dark_theme = None
+        self.check_flag_adjust_cols = None
+        self.chk_flag_change_theme = None
         self.btn_close = None
 
-        # Checkbox vars
-        self.auto_adjust_cols = tk.BooleanVar(value=True)
-        self.enable_dark_theme = tk.BooleanVar(
-            value=False)  # Tema claro por defecto
+        self.flag_adjust_cols = tk.BooleanVar(value=True)
+        self.flag_change_theme = tk.BooleanVar(value=False)
 
-        self.orden_ascendente = {config.COLUMN_ID: True, config.COLUMN_PROCESS_NAME: True,
+        self.order_asc = {config.COLUMN_ID: True, config.COLUMN_PROCESS_NAME: True,
                                  config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
-        self.all_processes = []
+        self.process_list = []
 
-        self.root.bind("<Configure>", self.on_window_resize)
+        # self.root.bind("<Configure>", self.on_window_resize)
 
-        # Frame inferior/controles
+        # Controls group ---------------------------------
         self.frm_bottom_bar = tk.Frame(self.root)
         self.frm_bottom_bar.pack(pady=10, fill="x")
 
         self.inp_search = tk.Entry(self.frm_bottom_bar, width=30)
         self.inp_search.pack(side="left", padx=5, ipady=6)
-        self.inp_search.bind('<Return>', lambda event: self.filter_process())
+        self.inp_search.bind('<Return>', lambda event: self.filter_process_list())
 
         self.btn_buscar = tk.Button(
-            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=self.filter_process)
+            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=self.filter_process_list)
         self.btn_buscar.pack(side="left", padx=5, ipadx=20)
 
         self.btn_update = tk.Button(
-            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=self.update_table)
+            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=self.update_process_list)
         self.btn_update.pack(side="left", padx=2, ipadx=15)
 
         self.btn_settings = tk.Button(
-            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=self.open_settings_popup)
+            self.frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=self.show_window_settings)
         self.btn_settings.pack(side="left", padx=5, ipadx=10)
 
         self.lbl_total = tk.Label(
@@ -139,12 +130,18 @@ class ProcessManager:
         self.lbl_total.pack(side="left", padx=5)
 
         self.theme = None
-        self.apply_theme(config.LIGHT_THEME)  # Se aplica el tema por defecto.
+        self.apply_theme(config.LIGHT_THEME)
 
-        self.update_table()  # Cargar datos la primera vez
+        self.update_process_list()
 
-    def open_settings_popup(self):
-        # Solo crea la ventana si no ha sido creada antes o si ha sido destruida
+    def start(self):
+        """Inicia la aplicación"""
+        center_window_on_screen(self.root)
+        self.root.deiconify()
+        self.root.mainloop()
+
+    def show_window_settings(self):
+        """Abre la ventana de configuración (no modal)"""
         if self.popup is None or not self.popup.winfo_exists():
             self.popup = tk.Toplevel(self.root)
             self.popup.title(
@@ -156,20 +153,20 @@ class ProcessManager:
 
             # Ocultar temporalmente y mostrar recién cuando esté centrada
             self.popup.withdraw()
-            center_window(self.popup)
+            center_window_on_screen(self.popup)
             self.popup.deiconify()
 
             # Crear los controles solo una vez
             self.frm_checks = tk.Frame(self.popup)
             self.frm_checks.pack(padx=10, pady=10, anchor="w")
 
-            self.chk_auto_adjust_cols = tk.Checkbutton(
-                self.frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=self.auto_adjust_cols)
-            self.chk_auto_adjust_cols.pack(anchor="w")
+            self.check_flag_adjust_cols = tk.Checkbutton(
+                self.frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=self.flag_adjust_cols)
+            self.check_flag_adjust_cols.pack(anchor="w")
 
-            self.chk_enable_dark_theme = tk.Checkbutton(
-                self.frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=self.enable_dark_theme, command=self.toggle_theme)
-            self.chk_enable_dark_theme.pack(anchor="w")
+            self.chk_flag_change_theme = tk.Checkbutton(
+                self.frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=self.flag_change_theme, command=self.toggle_theme)
+            self.chk_flag_change_theme.pack(anchor="w")
 
             self.btn_close = tk.Button(
                 self.popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self.popup.destroy)
@@ -180,17 +177,13 @@ class ProcessManager:
 
         self.apply_theme(self.theme)
 
-    def start(self):
-        center_window(self.root)
-        self.root.deiconify()
-        self.root.mainloop()
-
     def apply_theme(self, theme):
-        """Aplica un tema a la interfaz gráfica"""
+        """Aplica el tema indicado a la interfaz gráfica"""
         self.theme = theme
 
         config.set_bg_color_title_bar(self.root, color=self.theme["name"])
-        # Configurar colores para widgets de tkinter
+        
+        # Configuracion de colores para widgets de ttk
         self.root.config(bg=self.theme["bg2"])
         self.frm_main.config(bg=self.theme["frame_bg"])
         self.frm_bottom_bar.config(bg=self.theme["frame_bg"])
@@ -204,6 +197,7 @@ class ProcessManager:
                                  activebackground=self.theme["button_activebackground"], activeforeground=self.theme["button_activeforeground"])
         self.btn_update.config(bg=self.theme["button_bg"], fg=self.theme["button_fg"],
                                activebackground=self.theme["button_activebackground"], activeforeground=self.theme["button_activeforeground"])
+        
         if self.popup != None:
             config.set_bg_color_title_bar(self.popup, color=self.theme["name"])
             self.popup.config(bg=self.theme["bg2"])
@@ -212,18 +206,18 @@ class ProcessManager:
         if self.btn_close != None:
             self.btn_close.config(bg=self.theme["button_bg"], fg=self.theme["button_fg"],
                                   activebackground=self.theme["button_activebackground"], activeforeground=self.theme["button_activeforeground"])
-        if self.chk_auto_adjust_cols != None:
-            self.chk_auto_adjust_cols.config(bg=self.theme["checkbox_bg"], fg=self.theme["checkbox_fg"],
+        if self.check_flag_adjust_cols != None:
+            self.check_flag_adjust_cols.config(bg=self.theme["checkbox_bg"], fg=self.theme["checkbox_fg"],
                                              selectcolor=self.theme["checkbox_selectcolor"], activebackground=self.theme[
                                                  "checkbox_activebackground"],
                                              activeforeground=self.theme["checkbox_activeforeground"])
-        if self.chk_enable_dark_theme != None:
-            self.chk_enable_dark_theme.config(bg=self.theme["checkbox_bg"], fg=self.theme["checkbox_fg"],
+        if self.chk_flag_change_theme != None:
+            self.chk_flag_change_theme.config(bg=self.theme["checkbox_bg"], fg=self.theme["checkbox_fg"],
                                               selectcolor=self.theme["checkbox_selectcolor"], activebackground=self.theme[
                                                   "checkbox_activebackground"],
                                               activeforeground=self.theme["checkbox_activeforeground"])
 
-        # Configurar estilos para widgets de ttk
+        # Configuración de colores segun en eventos de widgets de ttk
         self.style.theme_use("clam")  # alt | classic
         self.style.map("Treeview.Heading",
                        background=[("active", config.COLOR_SKYBLUE0),
@@ -244,7 +238,7 @@ class ProcessManager:
                        fieldbackground=self.theme["bg"])
 
     def toggle_theme(self):
-        """Alterna entre el tema claro y oscuro"""
+        """Alterna entre el tema claro y oscuro y luego reinicia la aplicación"""
         if self.theme == config.LIGHT_THEME:
             self.apply_theme(config.DARK_THEME)
         else:
@@ -258,26 +252,25 @@ class ProcessManager:
         refresh_window(self.popup, sleep=1800)
 
     def sort_column(self, column):
-        # global self.orden_ascendente
         data = [(self.tree_processes.item(row)["values"][0], self.tree_processes.item(row)["values"][1], self.tree_processes.item(
             row)["values"][2], self.tree_processes.item(row)["values"][3]) for row in self.tree_processes.get_children()]
 
         if column == config.COLUMN_ID:
             data.sort(key=lambda x: int(
-                x[0]), reverse=not self.orden_ascendente[config.COLUMN_ID])
-            self.orden_ascendente[config.COLUMN_ID] = not self.orden_ascendente[config.COLUMN_ID]
+                x[0]), reverse=not self.order_asc[config.COLUMN_ID])
+            self.order_asc[config.COLUMN_ID] = not self.order_asc[config.COLUMN_ID]
         elif column == config.COLUMN_PROCESS_NAME:
             data.sort(key=lambda x: x[1].lower(
-            ), reverse=not self.orden_ascendente[config.COLUMN_PROCESS_NAME])
-            self.orden_ascendente[config.COLUMN_PROCESS_NAME] = not self.orden_ascendente[config.COLUMN_PROCESS_NAME]
+            ), reverse=not self.order_asc[config.COLUMN_PROCESS_NAME])
+            self.order_asc[config.COLUMN_PROCESS_NAME] = not self.order_asc[config.COLUMN_PROCESS_NAME]
         elif column == config.COLUMN_STATUS:
             data.sort(key=lambda x: x[2].lower(
-            ), reverse=not self.orden_ascendente[config.COLUMN_STATUS])
-            self.orden_ascendente[config.COLUMN_STATUS] = not self.orden_ascendente[config.COLUMN_STATUS]
+            ), reverse=not self.order_asc[config.COLUMN_STATUS])
+            self.order_asc[config.COLUMN_STATUS] = not self.order_asc[config.COLUMN_STATUS]
         elif column == config.COLUMN_LOCATION:
             data.sort(key=lambda x: x[3].lower(
-            ), reverse=not self.orden_ascendente[config.COLUMN_LOCATION])
-            self.orden_ascendente[config.COLUMN_LOCATION] = not self.orden_ascendente[config.COLUMN_LOCATION]
+            ), reverse=not self.order_asc[config.COLUMN_LOCATION])
+            self.order_asc[config.COLUMN_LOCATION] = not self.order_asc[config.COLUMN_LOCATION]
 
         for row in self.tree_processes.get_children():
             self.tree_processes.delete(row)
@@ -290,7 +283,7 @@ class ProcessManager:
                         config.COLUMN_STATUS, config.COLUMN_LOCATION]
         for col in process_list:
             if col == column:
-                symbol = config.SORT_ASC_ICON if self.orden_ascendente[col] else config.SORT_DESC_ICON
+                symbol = config.SORT_ASC_ICON if self.order_asc[col] else config.SORT_DESC_ICON
             else:
                 symbol = ""
             text = config.COLUMN_HEADERS[config.COLUMN_ID] if col == config.COLUMN_ID else config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME] if col == config.COLUMN_PROCESS_NAME else config.COLUMN_HEADERS[
@@ -299,14 +292,14 @@ class ProcessManager:
 
     def auto_adjust_columns(self):
         """Ajusta automáticamente el ancho de las columnas al mínimo necesario, respetando minwidth"""
-        if self.auto_adjust_cols.get():  # Solo ajustar si el checkbox está marcado
+        if self.flag_adjust_cols.get():  # Solo ajustar si el checkbox está marcado
+
             self.tree_processes.update_idletasks()  # Actualizar la geometría de la tabla
             for col in self.tree_processes["columns"]:
-                # Obtener el valor de minwidth de la columna
+
                 min_width = int(self.tree_processes.column(
                     col, option="minwidth"))
 
-                # Obtener solo las filas visibles (las que están en la tabla después del filtro)
                 visible_rows = self.tree_processes.get_children()
 
                 # Calcular el ancho máximo de la columna basado en el contenido de las celdas visibles
@@ -324,35 +317,33 @@ class ProcessManager:
                 # Asegurarse de que el ancho no sea menor que minwidth
                 adjusted_width = max(max_width + 10, min_width)
 
-                # Ajustar el ancho de la columna
                 self.tree_processes.column(col, width=adjusted_width)
 
-    def filter_process(self):
+    def filter_process_list(self):
         text = self.inp_search.get().strip().lower()
 
         for process in self.tree_processes.get_children():
             self.tree_processes.delete(process)
 
         if text == "":
-            filtered_data = self.all_processes
+            filtered_data = self.process_list
         else:
             filtered_data = [(pid, name, status, location) for pid, name,
-                             status, location in self.all_processes if text in name.lower()]
+                             status, location in self.process_list if text in name.lower()]
 
         for pid, name, status, location in filtered_data:
             self.tree_processes.insert(
-                "", "end", values=(pid, name, status, location))
+                "", tk.END, values=(pid, name, status, location))
 
         self.lbl_total.config(
             text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(filtered_data)}")
 
-    def update_table(self):
-        # global all_processes
+    def update_process_list(self):
+        """Actualiza la lista de procesos"""
         for process in self.tree_processes.get_children():
             self.tree_processes.delete(process)
 
-        # all_processes = []
-        self.all_processes.clear()
+        self.process_list.clear()
         for process in psutil.process_iter(attrs=['pid', 'name', 'status']):
             pid = None
             name = None
@@ -365,30 +356,24 @@ class ProcessManager:
                 location = psutil.Process(pid).exe()
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 print(
-                    f"> ERROR: Error al ejecutar psutil.process_iter en 'update_table'. pid:{pid}")
+                    f"> ERROR: Error al ejecutar psutil.process_iter en 'update_process_list'. pid:{pid}")
                 pid = process.info['pid']
                 name = process.info['name']
                 status = "N/A"
                 location = "N/A"
 
-            self.all_processes.append(
+            self.process_list.append(
                 (pid, name or "-", status, location or "-"))
 
-        for pid, name, status, location in self.all_processes:
-            self.tree_processes.insert(
-                "", tk.END, values=(pid, name, status, location))
+        for pid, name, status, location in self.process_list:
+            self.tree_processes.insert("", tk.END, values=(pid, name, status, location))
 
         self.lbl_total.config(
-            text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(self.all_processes)}")
+            text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(self.process_list)}")
 
+        # Lista ordenada por defecto por 'ID'
         self.tree_processes.heading(column=config.COLUMN_ID,
                                     text=f"{config.COLUMN_HEADERS[config.COLUMN_ID]} {config.SORT_DESC_ICON}")
-        self.tree_processes.heading(column=config.COLUMN_PROCESS_NAME,
-                                    text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME])
-        self.tree_processes.heading(column=config.COLUMN_STATUS,
-                                    text=config.COLUMN_HEADERS[config.COLUMN_STATUS])
-        self.tree_processes.heading(column=config.COLUMN_LOCATION,
-                                    text=config.COLUMN_HEADERS[config.COLUMN_LOCATION])
 
     def on_window_resize(self, event):
         """Función que se ejecuta cuando la ventana cambia de tamaño"""
@@ -396,10 +381,9 @@ class ProcessManager:
 
         # Si ya hay un temporizador en marcha, cancelarlo
         if resize_timer:
-            root.after_cancel(resize_timer)
+            self.root.after_cancel(resize_timer)
 
-        # Programar la ejecución de auto_adjust_columns después de 200 ms
-        resize_timer = root.after(200, self.auto_adjust_columns)
+        resize_timer = self.root.after(200, self.auto_adjust_columns)
 
 
 if __name__ == "__main__":
