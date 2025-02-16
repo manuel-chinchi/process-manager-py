@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, font
 import config, pmcore # custom libs
 import os
+import subprocess
+import pyperclip
 
 config.adjust_dpi()
 
@@ -16,6 +18,7 @@ def refresh_window(window: tk.Tk, sleep: int = 1000):
 
 
 def center_window_on_screen(window: tk.Tk):
+    """Establece la posición de la ventana en el centro de la pantalla"""
     window.update_idletasks()
     width_wnd = window.winfo_width()
     height_wnd = window.winfo_height()
@@ -88,6 +91,15 @@ class ProcessManager:
         # Scrollbar Y
         self._tree_processes.config(yscrollcommand=self._scb_tree.set)
         self._tree_processes.pack(expand=True, fill="both")
+
+        # Menú contextual
+        self._context_menu = tk.Menu(self._root, tearoff=0)
+        self._context_menu.add_command(
+            label=config.MENU_CONTEXT[config.MENU_OPT_COPY_TO_CLIPBOARD], command=self._copy_content_to_clipboard)
+        self._context_menu.add_command(
+            label=config.MENU_CONTEXT[config.MENU_OPT_OPEN_LOCATION_PROCESS], command=self._open_location_process)
+
+        self._tree_processes.bind("<Button-3>", self._show_context_menu)
 
         # Config window ---------------------------------
         self._popup = None
@@ -249,6 +261,9 @@ class ProcessManager:
                                    ("!selected", self._theme["treeview_foreground_!selected"])],
                        # style.configure(fieldbackground=theme["bg"])
                        fieldbackground=self._theme["bg"])
+        
+        # Menú contextual ---------------------------------
+        self._context_menu.configure(bg=theme["bg2"], fg=theme["fg"])
 
     def _toggle_theme(self):
         """Alterna entre el tema claro y oscuro y luego reinicia la aplicación"""
@@ -411,7 +426,7 @@ class ProcessManager:
                                     text=f"{config.COLUMN_HEADERS[config.COLUMN_ID]} {config.SORT_DESC_ICON}")
 
     def _on_window_resize(self, event):
-        """Función que se ejecuta cuando la ventana cambia de tamaño"""
+        """Se ejecuta cuando la ventana cambia de tamaño"""
         global resize_timer
 
         # Si ya hay un temporizador en marcha, cancelarlo
@@ -419,6 +434,58 @@ class ProcessManager:
             self._root.after_cancel(resize_timer)
 
         resize_timer = self._root.after(200, self._auto_adjust_columns)
+
+    def _show_context_menu(self, event):
+        """Muestra el menú contextual al hacer clic derecho."""
+        item = self._tree_processes.identify_row(event.y)
+        if item:
+            self._tree_processes.selection_set(item)
+            self._context_menu.post(event.x_root, event.y_root)
+
+    def _copy_content_to_clipboard(self):
+        selected = self._tree_processes.selection()
+        if not selected:
+            return
+
+        pid = self._tree_processes.item(selected[0], "values")[0]
+        name = self._tree_processes.item(selected[0], "values")[1]
+        status = self._tree_processes.item(selected[0], "values")[2]
+        exe = self._tree_processes.item(selected[0], "values")[3]  # path
+
+        pyperclip.copy(f"{pid}\t{name}\t{status}\t{exe}")
+        print(f"> Acción: Se copio el contenido de la fila al portapapeles")
+
+    # def _kill_process(self):
+    #     """Finaliza el proceso seleccionado."""
+    #     selected = self._tree_processes.selection()
+    #     if not selected:
+    #         return
+
+    #     pid = self._tree_processes.item(selected[0], "values")[0]
+
+    #     result = pmcore.kill_process(int(pid))
+    #     if result != None:
+    #         print(f"> Salida: {result}")
+    #         self._update_process_list()
+
+    def _open_location_process(self):
+        selected = self._tree_processes.selection()
+        if not selected:
+            return
+
+        exe = self._tree_processes.item(selected[0], "values")[3]
+        path = os.path.realpath(exe)
+
+        if not os.path.exists(path):
+            print(f"Archivo no encontrado: {path}")
+            return
+
+        try:
+            subprocess.run(["explorer", "/select,", path], check=True)
+        except Exception as e:
+            # print(f"> Advertencia: La ruta '{e}' se encuentra en una carpeta privada del sistema")
+            print(
+                f"> Advertencia: La ruta '{path}' se encuentra en una carpeta privada del sistema")
 
     def start(self):
         """Inicia la aplicación"""

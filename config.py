@@ -136,6 +136,14 @@ DARK_THEME = {
     "checkbox_activebackground": COLOR_SKYBLUE0
 }
 
+CONTEXT_MENU = 1020
+MENU_OPT_COPY_TO_CLIPBOARD = 1021
+MENU_OPT_OPEN_LOCATION_PROCESS = 1022
+
+MENU_CONTEXT = {
+    MENU_OPT_COPY_TO_CLIPBOARD: "Copiar información al portapapeles",
+    MENU_OPT_OPEN_LOCATION_PROCESS: "Abrir ubicación de ejecutable"
+}
 
 def adjust_dpi():
     # NOTE Solucion DPI alto
