@@ -23,7 +23,7 @@ A simple Process manager program made in Python + TKinter
 ## References
 * [define custom styles TKinter](https://www.pythontutorial.net/tkinter/ttk-style/)
 * [change bg color in tree TKinter](https://stackoverflow.com/questions/43816930/how-to-fully-change-the-background-color-on-a-tkinter-ttk-treeview)
-
+* [hide TopLevel window TKinter](https://stackoverflow.com/questions/67590510/hide-or-close-top-level-window-when-main-window-isnt-visible)
 
 
 <!-- software made in Argentina -->

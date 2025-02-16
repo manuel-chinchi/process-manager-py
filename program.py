@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, font
-import psutil
-import config
-
+import config, pmcore # custom libs
+import os
 
 config.adjust_dpi()
 
@@ -29,11 +28,12 @@ def center_window_on_screen(window: tk.Tk):
 
 class ProcessManager:
     def __init__(self, root: tk.Tk):
+        self._pid = os.getpid()
         self._root = root
         self._style = ttk.Style(self._root)
 
         # Main window ---------------------------------
-        self._root.title(config.APP_TITLE)
+        self._root.title(f"{config.APP_TITLE} [PID: {self._pid}]")
         self._root.geometry(config.WINDOW_SIZE)
         self._root.withdraw()
         self._root.iconbitmap(config.APP_ICON)
@@ -292,9 +292,10 @@ class ProcessManager:
             self._tree_processes.insert(
                 "", "end", values=(pid, name, status, location))
 
-        process_list = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME,
-                        config.COLUMN_STATUS, config.COLUMN_LOCATION]
-        for col in process_list:
+        column_headers = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME,
+                          config.COLUMN_STATUS, config.COLUMN_LOCATION]
+
+        for col in column_headers:
             if col == column:
                 symbol = config.SORT_ASC_ICON if self._order_asc[col] else config.SORT_DESC_ICON
             else:
@@ -358,29 +359,49 @@ class ProcessManager:
             self._tree_processes.delete(process)
 
         self._process_list.clear()
-        for process in psutil.process_iter(attrs=['pid', 'name', 'status']):
-            pid = None
-            name = None
-            status = None
-            location = None
-            try:
-                pid = process.info['pid']
-                name = process.info['name']
-                status = process.info['status']
-                location = psutil.Process(pid).exe()
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                print(
-                    f"> ERROR: Error al ejecutar psutil.process_iter en 'update_process_list'. pid:{pid}")
-                pid = process.info['pid']
-                name = process.info['name']
-                status = "N/A"
-                location = "N/A"
+        # for process in psutil.process_iter(attrs=['pid', 'name', 'status']):
+        #     pid = None
+        #     name = None
+        #     status = None
+        #     location = None
+        #     try:
+        #         pid = process.info['pid']
+        #         name = process.info['name']
+        #         status = process.info['status']
+        #         location = psutil.Process(pid).exe()
+        #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        #         print(
+        #             f"> ERROR: Error al ejecutar psutil.process_iter en 'update_process_list'. pid:{pid}")
+        #         pid = process.info['pid']
+        #         name = process.info['name']
+        #         status = "N/A"
+        #         location = "N/A"
 
-            self._process_list.append(
-                (pid, name or "-", status, location or "-"))
+        #     self._process_list.append(
+        #         (pid, name or "-", status, location or "-"))
 
-        for pid, name, status, location in self._process_list:
-            self._tree_processes.insert("", tk.END, values=(pid, name, status, location))
+        # for pid, name, status, location in self._process_list:
+        #     self._tree_processes.insert("", tk.END, values=(pid, name, status, location))
+
+        # NOTE Refactorización parcial, hasta implementar una version estable de 'pmcore'
+        # se va a dejar la implementacion anterior. Ahora usa el nivel mas rapido para 
+        # obtener los procesos.
+        process_list = pmcore.get_process_list(pmcore.OPTIMIZED_LEVEL_2)
+
+        for process in process_list:
+            self._process_list.\
+                append((
+                    process[pmcore.COL_PID],
+                    process[pmcore.COL_NAME],
+                    process[pmcore.COL_STATUS],
+                    process[pmcore.COL_EXE]
+                ))
+            self._tree_processes.\
+                insert("", "end",
+                       values=(process[pmcore.COL_PID],
+                               process[pmcore.COL_NAME],
+                               process[pmcore.COL_STATUS],
+                               process[pmcore.COL_EXE]))
 
         self._lbl_total.config(
             text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(self._process_list)}")
