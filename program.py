@@ -31,6 +31,44 @@ def center_window_on_screen(window: tk.Tk):
 
 class ProcessManager:
     def __init__(self, root: tk.Tk):
+        # Main window ---------------------------------
+        self._pid = None
+        self._root = None
+        self._style = None
+
+        self._frm_main = None
+        self._tree_processes = None
+        self._scb_y_tree = None
+        self._context_menu = None
+        self._frm_bottom_bar = None
+        self._inp_search = None
+        self._btn_buscar = None
+        self._btn_update = None
+        self._btn_settings = None
+        self._lbl_total = None
+
+        self._create_main_window()
+
+        # Popup window ---------------------------------
+        self._top_settings = None
+        self._frm_checks = None
+        self._check_flag_adjust_cols = None
+        self._chk_flag_change_theme = None
+        self._btn_close = None
+
+        self._flag_adjust_cols = tk.BooleanVar(value=True)
+        self._flag_change_theme = tk.BooleanVar(value=False)
+
+        self._order_asc = {config.COLUMN_ID: False, config.COLUMN_PROCESS_NAME: True,
+                                 config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
+        self._process_list = []
+
+        self._theme = None
+        self._apply_theme(config.LIGHT_THEME)
+
+        self._update_process_list()
+
+    def _create_main_window(self):
         self._pid = os.getpid()
         self._root = root
         self._style = ttk.Style(self._root)
@@ -84,12 +122,12 @@ class ProcessManager:
         self._tree_processes.column(config.COLUMN_LOCATION, width=150,
                                    anchor="w", minwidth=150, stretch=True)
 
-        self._scb_tree = tk.Scrollbar(self._frm_main, orient="vertical",
+        self._scb_y_tree = tk.Scrollbar(self._frm_main, orient="vertical",
                                      command=self._tree_processes.yview)
-        self._scb_tree.pack(side="right", fill="y")
+        self._scb_y_tree.pack(side="right", fill="y")
 
         # Scrollbar Y
-        self._tree_processes.config(yscrollcommand=self._scb_tree.set)
+        self._tree_processes.config(yscrollcommand=self._scb_y_tree.set)
         self._tree_processes.pack(expand=True, fill="both")
 
         # Menú contextual
@@ -100,20 +138,6 @@ class ProcessManager:
             label=config.MENU_CONTEXT[config.MENU_OPT_OPEN_LOCATION_PROCESS], command=self._open_location_process)
 
         self._tree_processes.bind("<Button-3>", self._show_context_menu)
-
-        # Config window ---------------------------------
-        self._popup = None
-        self._frm_checks = None
-        self._check_flag_adjust_cols = None
-        self._chk_flag_change_theme = None
-        self._btn_close = None
-
-        self._flag_adjust_cols = tk.BooleanVar(value=True)
-        self._flag_change_theme = tk.BooleanVar(value=False)
-
-        self._order_asc = {config.COLUMN_ID: False, config.COLUMN_PROCESS_NAME: True,
-                                 config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
-        self._process_list = []
 
         # self.root.bind("<Configure>", self.on_window_resize)
 
@@ -141,26 +165,21 @@ class ProcessManager:
             self._frm_bottom_bar, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
-        self._theme = None
-        self._apply_theme(config.LIGHT_THEME)
-
-        self._update_process_list()
-
     def _create_window_settings(self):
-        self._popup = tk.Toplevel(self._root)
-        self._popup.title(
+        self._top_settings = tk.Toplevel(self._root)
+        self._top_settings.title(
             config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
-        self._popup.geometry(
+        self._top_settings.geometry(
             config.SETTINGS_OPTIONS[config.SIZE_WND_SETTINGS])
-        self._popup.resizable(False, False)
-        self._popup.attributes("-toolwindow", True)
+        self._top_settings.resizable(False, False)
+        self._top_settings.attributes("-toolwindow", True)
 
         # Hacer la ventana tipo modal
-        self._popup.grab_set()  # Bloquea la interacción con otras ventanas
-        self._popup.transient(self._root)  # Asocia la ventana modal con la ventana principal
+        self._top_settings.grab_set()  # Bloquea la interacción con otras ventanas
+        self._top_settings.transient(self._root)  # Asocia la ventana modal con la ventana principal
 
         # Bottom panel ---------------------------------
-        self._frm_checks = tk.Frame(self._popup)
+        self._frm_checks = tk.Frame(self._top_settings)
         self._frm_checks.pack(padx=10, pady=10, anchor="w")
 
         self._check_flag_adjust_cols = tk.Checkbutton(
@@ -172,27 +191,27 @@ class ProcessManager:
         self._chk_flag_change_theme.pack(anchor="w")
 
         self._btn_close = tk.Button(
-            self._popup, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self._close_window_settings)
+            self._top_settings, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self._close_window_settings)
         self._btn_close.pack(pady=10, ipadx=35)
 
     def _close_window_settings(self):
         """Cierra la ventana de configuración y libera el foco"""
-        if self._popup and self._popup.winfo_exists():
-            self._popup.grab_release()  # Libera el foco
-            self._popup.destroy()
+        if self._top_settings and self._top_settings.winfo_exists():
+            self._top_settings.grab_release()  # Libera el foco
+            self._top_settings.destroy()
 
     def _open_window_settings(self, already_exists=True):
         """Abre la ventana de configuración"""
         if not already_exists:
-            self._popup.withdraw()
-            center_window_on_screen(self._popup)
-            self._popup.deiconify()
+            self._top_settings.withdraw()
+            center_window_on_screen(self._top_settings)
+            self._top_settings.deiconify()
         else:
-            self._popup.deiconify()
+            self._top_settings.deiconify()
 
     def _show_window_settings(self):
         """Muestra la ventana de configuración"""
-        if self._popup is None or not self._popup.winfo_exists():
+        if self._top_settings is None or not self._top_settings.winfo_exists():
             self._create_window_settings()
 
             # Ocultar temporalmente y mostrar recién cuando esté centrada
@@ -223,9 +242,9 @@ class ProcessManager:
         self._btn_update.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
                                activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
         
-        if self._popup != None:
-            config.set_bg_color_title_bar(self._popup, color=self._theme["name"])
-            self._popup.config(bg=self._theme["bg2"])
+        if self._top_settings != None:
+            config.set_bg_color_title_bar(self._top_settings, color=self._theme["name"])
+            self._top_settings.config(bg=self._theme["bg2"])
         if self._frm_checks != None:
             self._frm_checks.config(bg=self._theme["bg2"])
         if self._btn_close != None:
@@ -277,7 +296,7 @@ class ProcessManager:
         # TODO Marco de ventana popup
         # Si se cierra la ventana popup y luego se abre en modo oscuro el marco superior no se pinta correctamente
         # refresh_window(self._root, sleep=1200)
-        # refresh_window(self._popup, sleep=1800)
+        # refresh_window(self._top_settings, sleep=1800)
 
     def _sort_column(self, column):
         data = [(self._tree_processes.item(row)["values"][0], self._tree_processes.item(row)["values"][1], self._tree_processes.item(
