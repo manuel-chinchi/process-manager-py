@@ -64,5 +64,6 @@ The folder `dist` contain the `setup.exe` installer made with InnoSetup directly
 - [icon not show pyinstaller TKinter](https://stackoverflow.com/questions/71006377/tkinter-icon-is-not-working-after-converting-to-exe)
 - [Create exe from Win 10 SDK to Win 7 <-> pyinstaller](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
 - [crear exe multicompatible win7/win10](https://stackoverflow.com/questions/47155474/create-an-exe-compatible-with-all-versions-of-windows-64-bit-and-32-bit-even-if)
+- [missing api-ms-win-core-path-l1-1-0.dll file pyinstaller](https://github.com/orgs/pyinstaller/discussions/6200)
 
 <!-- software made in Argentina 🇦🇷-->
