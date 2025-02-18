@@ -77,7 +77,7 @@ class ProcessManager:
         self._root.title(f"{config.APP_TITLE} [PID: {self._pid}]")
         self._root.geometry(config.WINDOW_SIZE)
         self._root.withdraw()
-        self._root.iconbitmap(config.APP_ICON)
+        self._root.iconbitmap(config.resource_path(config.APP_ICON))
         self._root.bind("<Configure>", self._on_window_resize)
 
         self._frm_main = tk.Frame(self._root)
@@ -512,7 +512,10 @@ class ProcessManager:
         self._root.deiconify()
         self._root.mainloop()
 
+
 if __name__ == "__main__":
+    # IMPORTANT!!! THESE LINES ARE NECESSARY TO BE ABLE TO CREATE THE EXECUTABLE WITH PYINSTALLER
+    pmcore.avoid_thread_overflow()
     root = tk.Tk()
     pm = ProcessManager(root=root)
     pm.start()

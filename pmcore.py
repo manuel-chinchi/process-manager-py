@@ -15,12 +15,12 @@ from datetime import datetime
 import time
 from typing import List, Tuple
 
-# Libraries for optimizing execute time of functions
-from multiprocessing import Pool, cpu_count
+# Libraries to optimize function execution time
+import multiprocessing
 from diskcache import Cache
 
 
-# Tiempos que tarda 'get_process_list' con todas las columnas seleccionadas
+# Estimated times to 'get_process_list'
 OPTIMIZED_LEVEL_0 = 0 # ~4s
 OPTIMIZED_LEVEL_1 = 1 # ~2,5s / 2s
 OPTIMIZED_LEVEL_2 = 2 # ~1s
@@ -116,8 +116,13 @@ def get_process_list(opt_level: int = OPTIMIZED_LEVEL_0) -> list:
     if opt_level == OPTIMIZED_LEVEL_0:
         return list(get_process_info(pid) for pid in pids)
     elif opt_level == OPTIMIZED_LEVEL_1:
-        with Pool(cpu_count()) as pool:
+        with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             return list(pool.map(get_process_info, pids))
     elif opt_level == OPTIMIZED_LEVEL_2:
-        with Pool(cpu_count()) as pool:
+        with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             return list(pool.map(get_process_info_v2, pids))
+
+
+def avoid_thread_overflow():
+    multiprocessing.freeze_support()
+    multiprocessing.set_start_method("spawn")

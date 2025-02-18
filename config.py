@@ -1,13 +1,22 @@
 import ctypes
+import sys, os
 
 
-def get_dir_file(f):
-    import os
-    return os.path.dirname(os.path.abspath(f))
+# def get_dir_file(f):
+#     import os
+#     return os.path.dirname(os.path.abspath(f))
 
+def resource_path(relative_path):
+    """ Obtiene la ruta absoluta del recurso, funcionando tanto en desarrollo como en el ejecutable """
+    if getattr(sys, 'frozen', False):  # Si el programa está compilado con PyInstaller
+        base_path = sys._MEIPASS  # Carpeta temporal donde PyInstaller extrae los archivos
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 APP_TITLE = "Adminstrador de procesos"
-APP_ICON = get_dir_file(__file__) + "/Icons/taskmgr.exe_14_107.ico"
+APP_ICON = "ProcessManagerPy.ico"
 # WINDOW_SIZE = "640x480"
 WINDOW_SIZE = "800x600"
 
