@@ -9,12 +9,12 @@ config.adjust_dpi()
 
 resize_timer = None
 
-
-def refresh_window(window: tk.Tk, sleep: int = 1000):
-    """Fuerza la actualización del marco superior"""
-    window.update_idletasks()
-    window.withdraw()
-    window.after(sleep, window.deiconify)
+# @DEPRECATED
+# def refresh_window(window: tk.Tk, sleep: int = 1000):
+#     """Fuerza la actualización del marco superior"""
+#     window.update_idletasks()
+#     window.withdraw()
+#     window.after(sleep, window.deiconify)
 
 
 def center_window_on_screen(window: tk.Tk):
@@ -31,7 +31,7 @@ def center_window_on_screen(window: tk.Tk):
 
 class ProcessManager:
     def __init__(self, root: tk.Tk):
-        # Main window ---------------------------------
+        # Ventana principal ---------------------------------
         self._pid = None
         self._root = None
         self._style = None
@@ -49,7 +49,7 @@ class ProcessManager:
 
         self._create_main_window()
 
-        # Popup window ---------------------------------
+        # Ventana de configuración ---------------------------------
         self._top_settings = None
         self._frm_checks = None
         self._check_flag_adjust_cols = None
@@ -84,7 +84,7 @@ class ProcessManager:
         self._frm_main.pack(expand=True, fill="both")
         self._frm_main.propagate(False)
 
-        # Styles ---------------------------------
+        # Estilos ---------------------------------
         self._style = ttk.Style(self._root)
         self._style.element_create(
             "Custom.Treeheading.border", "from", "default")
@@ -141,7 +141,7 @@ class ProcessManager:
 
         # self.root.bind("<Configure>", self.on_window_resize)
 
-        # Controls group ---------------------------------
+        # Grupo de controles ---------------------------------
         self._frm_bottom_bar = tk.Frame(self._root)
         self._frm_bottom_bar.pack(pady=10, fill="x")
 
@@ -178,7 +178,7 @@ class ProcessManager:
         self._top_settings.grab_set()  # Bloquea la interacción con otras ventanas
         self._top_settings.transient(self._root)  # Asocia la ventana modal con la ventana principal
 
-        # Bottom panel ---------------------------------
+        # Panel de botones ---------------------------------
         self._frm_checks = tk.Frame(self._top_settings)
         self._frm_checks.pack(padx=10, pady=10, anchor="w")
 
@@ -261,7 +261,7 @@ class ProcessManager:
                                                   "checkbox_activebackground"],
                                               activeforeground=self._theme["checkbox_activeforeground"])
 
-        # Configuración de colores segun en eventos de widgets de ttk
+        # Configuración de colores según eventos de widgets de ttk
         self._style.theme_use("clam")  # alt | classic
         self._style.map("Treeview.Heading",
                        background=[("active", config.COLOR_SKYBLUE0),
@@ -514,8 +514,9 @@ class ProcessManager:
 
 
 if __name__ == "__main__":
-    # IMPORTANT!!! THESE LINES ARE NECESSARY TO BE ABLE TO CREATE THE EXECUTABLE WITH PYINSTALLER
+    # @NOTE ESTA SENTENCIA ES NECESARIA PARA PODER CREAR EL EJECUTABLE CON PYINSTALLER!!!
     pmcore.avoid_thread_overflow()
+
     root = tk.Tk()
     pm = ProcessManager(root=root)
     pm.start()

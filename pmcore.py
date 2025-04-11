@@ -1,10 +1,10 @@
-# file:     pmcore.py 
+# file:     pmcore.py
 # version:  1.0 beta
 #
 # TODO list (version: 1.0 beta)
 # [1.1] Hacer mas pruebas
 # [1.2] Revisar manejo de excepciones en 'get_process_list'
-# [1.3] Refactorizar logica en 'get_process_info' y 'get_process_info_v2' 
+# [1.3] Refactorizar logica en 'get_process_info' y 'get_process_info_v2'
 #       para que cada tanda de combinacion de columnas que se pasa devuelva
 #       una tupla diferente. En pruebas comprobe que a menos parametros reque
 #       ridos tarda menos tiempo.
@@ -18,12 +18,14 @@ from typing import List, Tuple
 # Libraries to optimize function execution time
 import multiprocessing
 from diskcache import Cache
+import tempfile
+import os
 
 
 # Estimated times to 'get_process_list'
-OPTIMIZED_LEVEL_0 = 0 # ~4s
-OPTIMIZED_LEVEL_1 = 1 # ~2,5s / 2s
-OPTIMIZED_LEVEL_2 = 2 # ~1s
+OPTIMIZED_LEVEL_0 = 0  # ~4s
+OPTIMIZED_LEVEL_1 = 1  # ~2,5s / 2s
+OPTIMIZED_LEVEL_2 = 2  # ~1s
 CACHE_EXPIRATION = 60  # seconds
 
 COL_PID = 0
@@ -34,7 +36,9 @@ COL_CPU_PERCENT = 4
 COL_MEMORY_INFO = 5
 COL_EXE = 6
 
-cache = Cache('/tmp/process_cache')
+temp_dir = tempfile.gettempdir()  # C:\Users\usuario\AppData\Local\Temp
+cache_path = os.path.join(temp_dir, "_ProcessManagerPy_")
+cache = Cache(cache_path)
 
 
 def get_process_info(pid) -> Tuple[int, str, str, str, float, str, str]:
@@ -52,7 +56,7 @@ def get_process_info(pid) -> Tuple[int, str, str, str, float, str, str]:
             process.exe() or "___"
         )
     # except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-    except (psutil.AccessDenied,psutil.NoSuchProcess):
+    except (psutil.AccessDenied, psutil.NoSuchProcess):
         return (
             pid,
             "N/A",
