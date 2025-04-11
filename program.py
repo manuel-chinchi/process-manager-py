@@ -17,26 +17,14 @@ resize_timer = None
 #     window.after(sleep, window.deiconify)
 
 
-def center_window_on_screen(window: tk.Tk):
-    """Establece la posición de la ventana en el centro de la pantalla"""
-    window.update_idletasks()
-    width_wnd = window.winfo_width()
-    height_wnd = window.winfo_height()
-    width_screen = window.winfo_screenwidth()
-    height_screen = window.winfo_screenheight()
-    x = (width_screen // 2) - (width_wnd // 2)
-    y = (height_screen // 2) - (height_wnd // 2)
-    window.geometry(f"+{x}+{y}")
-
 
 class ProcessManager:
     def __init__(self, root: tk.Tk):
         # Ventana principal ---------------------------------
+        self._root = root
         self._pid = None
-        self._root = None
         self._style = None
-
-        self._frm_main = None
+        self._fra_main = None
         self._tree_processes = None
         self._scb_y_tree = None
         self._context_menu = None
@@ -55,34 +43,35 @@ class ProcessManager:
         self._check_flag_adjust_cols = None
         self._chk_flag_change_theme = None
         self._btn_close = None
-
         self._flag_adjust_cols = tk.BooleanVar(value=True)
         self._flag_change_theme = tk.BooleanVar(value=False)
-
         self._order_asc = {config.COLUMN_ID: False, config.COLUMN_PROCESS_NAME: True,
-                                 config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
+                           config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
         self._process_list = []
-
         self._theme = None
+
         self._apply_theme(config.LIGHT_THEME)
 
         self._update_process_list()
 
+    def _get_process_id(self):
+        return os.getpid()
+
     def _create_main_window(self):
-        self._pid = os.getpid()
-        self._root = root
+        """Crea la ventana principal del programa"""
+        self._pid = self._get_process_id()
         self._style = ttk.Style(self._root)
 
-        # Main window ---------------------------------
+        # Ventana principal ---------------------------------
         self._root.title(f"{config.APP_TITLE} [PID: {self._pid}]")
         self._root.geometry(config.WINDOW_SIZE)
         self._root.withdraw()
         self._root.iconbitmap(config.resource_path(config.APP_ICON))
         self._root.bind("<Configure>", self._on_window_resize)
 
-        self._frm_main = tk.Frame(self._root)
-        self._frm_main.pack(expand=True, fill="both")
-        self._frm_main.propagate(False)
+        self._fra_main = tk.Frame(self._root)
+        self._fra_main.pack(expand=True, fill="both")
+        self._fra_main.propagate(False)
 
         # Estilos ---------------------------------
         self._style = ttk.Style(self._root)
@@ -100,7 +89,7 @@ class ProcessManager:
         ])
         self._style.configure("Custom.Treeview", borderwidth=0, relief="flat")
 
-        self._tree_processes = ttk.Treeview(self._frm_main,
+        self._tree_processes = ttk.Treeview(self._fra_main,
                                            columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME,
                                                     config.COLUMN_STATUS, config.COLUMN_LOCATION),
                                            show="headings",
@@ -122,7 +111,7 @@ class ProcessManager:
         self._tree_processes.column(config.COLUMN_LOCATION, width=150,
                                    anchor="w", minwidth=150, stretch=True)
 
-        self._scb_y_tree = tk.Scrollbar(self._frm_main, orient="vertical",
+        self._scb_y_tree = tk.Scrollbar(self._fra_main, orient="vertical",
                                      command=self._tree_processes.yview)
         self._scb_y_tree.pack(side="right", fill="y")
 
@@ -158,14 +147,14 @@ class ProcessManager:
         self._btn_update.pack(side="left", padx=2, ipadx=15)
 
         self._btn_settings = tk.Button(
-            self._frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=self._show_window_settings)
+            self._frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=self._show_settings_window)
         self._btn_settings.pack(side="left", padx=5, ipadx=10)
 
         self._lbl_total = tk.Label(
             self._frm_bottom_bar, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
-    def _create_window_settings(self):
+    def _create_settings_window(self):
         self._top_settings = tk.Toplevel(self._root)
         self._top_settings.title(
             config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
@@ -191,33 +180,33 @@ class ProcessManager:
         self._chk_flag_change_theme.pack(anchor="w")
 
         self._btn_close = tk.Button(
-            self._top_settings, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self._close_window_settings)
+            self._top_settings, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self._close_settings_window)
         self._btn_close.pack(pady=10, ipadx=35)
 
-    def _close_window_settings(self):
+    def _close_settings_window(self):
         """Cierra la ventana de configuración y libera el foco"""
         if self._top_settings and self._top_settings.winfo_exists():
             self._top_settings.grab_release()  # Libera el foco
             self._top_settings.destroy()
 
-    def _open_window_settings(self, already_exists=True):
+    def _open_settings_window(self, already_exists=True):
         """Abre la ventana de configuración"""
         if not already_exists:
             self._top_settings.withdraw()
-            center_window_on_screen(self._top_settings)
+            self._center_window_on_screen(self._top_settings)
             self._top_settings.deiconify()
         else:
             self._top_settings.deiconify()
 
-    def _show_window_settings(self):
+    def _show_settings_window(self):
         """Muestra la ventana de configuración"""
         if self._top_settings is None or not self._top_settings.winfo_exists():
-            self._create_window_settings()
+            self._create_settings_window()
 
             # Ocultar temporalmente y mostrar recién cuando esté centrada
-            self._open_window_settings(False)
+            self._open_settings_window(False)
         else:
-            self._open_window_settings()
+            self._open_settings_window()
 
         self._apply_theme(self._theme)
 
@@ -229,7 +218,7 @@ class ProcessManager:
         
         # Configuracion de colores para widgets de ttk
         self._root.config(bg=self._theme["bg2"])
-        self._frm_main.config(bg=self._theme["frame_bg"])
+        self._fra_main.config(bg=self._theme["frame_bg"])
         self._frm_bottom_bar.config(bg=self._theme["frame_bg"])
         self._lbl_total.config(
             bg=self._theme["label_bg"], fg=self._theme["label_fg"])
@@ -488,6 +477,7 @@ class ProcessManager:
     #         self._update_process_list()
 
     def _open_location_process(self):
+        """Abre una ventana del explorador de archivos con la ubicación del binario que ejecuta el proceso"""
         selected = self._tree_processes.selection()
         if not selected:
             return
@@ -506,9 +496,20 @@ class ProcessManager:
             print(
                 f"> Advertencia: La ruta '{path}' se encuentra en una carpeta privada del sistema")
 
+    def _center_window_on_screen(self, window: tk.Tk):
+        """Establece la posición de la ventana en el centro de la pantalla"""
+        window.update_idletasks()
+        width_wnd = window.winfo_width()
+        height_wnd = window.winfo_height()
+        width_screen = window.winfo_screenwidth()
+        height_screen = window.winfo_screenheight()
+        x = (width_screen // 2) - (width_wnd // 2)
+        y = (height_screen // 2) - (height_wnd // 2)
+        window.geometry(f"+{x}+{y}")
+
     def start(self):
         """Inicia la aplicación"""
-        center_window_on_screen(self._root)
+        self._center_window_on_screen(self._root)
         self._root.deiconify()
         self._root.mainloop()
 

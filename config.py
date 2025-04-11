@@ -1,3 +1,11 @@
+# archivo: config.py
+# descripción: Este archivo contiene la configuración general del programa
+#              que puede resumirse como:
+#               - Ajustes para monitores con DPI alto
+#               - Temas de colores a usar
+#               - Rutas para archivos temporales 
+#               - Iconos de la aplicación
+
 import ctypes
 import sys, os
 
