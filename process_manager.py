@@ -1,11 +1,20 @@
 import tkinter as tk
 from tkinter import ttk, font
-import config, pmcore # custom libs
+import config
+import pmcore  # custom libs
 import os
 import subprocess
 import pyperclip
 
 resize_timer = None
+
+# @DEPRECATED
+# def refresh_window(window: tk.Tk, sleep: int = 1000):
+#     """Fuerza la actualización del marco superior"""
+#     window.update_idletasks()
+#     window.withdraw()
+#     window.after(sleep, window.deiconify)
+
 
 class ProcessManager:
     def __init__(self, root: tk.Tk):
