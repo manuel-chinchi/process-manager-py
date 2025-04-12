@@ -1,6 +1,6 @@
-# archivo: config.py
-# descripción: Este archivo contiene la configuración general del programa
-#              que puede resumirse como:
+# archivo:      config.py
+# descripción:  Este archivo contiene la configuración general del programa
+#               que puede resumirse como:
 #               - Ajustes para monitores con DPI alto
 #               - Temas de colores a usar
 #               - Rutas para archivos temporales 
@@ -162,8 +162,9 @@ MENU_CONTEXT = {
     MENU_OPT_OPEN_LOCATION_PROCESS: "Abrir ubicación de ejecutable"
 }
 
-def adjust_dpi_win32():
-    """Ajusta el renderizado de la aplicación para pantallas con DPI alto"""
+
+def adjust_app_DPI():
+    """Ajusta el renderizado de la aplicación para pantallas con DPI alto (en sistemas Windows)"""
     import ctypes
     try:  # >= win 8.1
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -192,3 +193,6 @@ def set_bg_color_title_bar(window, color=THEME_LIGHT):
     value = ctypes.c_int(value)
     set_window_attribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(value),
                          ctypes.sizeof(value))
+
+def is_Windows():
+    return os.name == 'nt'

@@ -68,4 +68,6 @@ The folder `dist` contain the `setup.exe` installer made with InnoSetup directly
 - [structure of application TKinter](https://stackoverflow.com/questions/17466561/what-is-the-best-way-to-structure-a-tkinter-application)
 - [fix solution for screens with hight dpi on Windows](https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in)
 - [set background color title bar on Windows](https://stackoverflow.com/questions/23836000/can-i-change-the-title-bar-in-tkinter)
+- [multiprocessing in Python](https://superfastpython.com/multiprocessing-freeze-support-in-python/)
+- [comments in functions in Python](https://stackoverflow.com/questions/33019955/should-you-always-document-functions-even-if-redundant-specifically-python)
 <!-- software made in Argentina 🇦🇷-->

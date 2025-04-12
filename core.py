@@ -1,6 +1,7 @@
-# file:     pmcore.py
-# version:  1.0 beta
-#
+# archivo:      core.py
+# descripción:  Este módulo contiene las funciones base del programa
+#               para la administración y manejo de procesos
+# 
 # TODO list (version: 1.0 beta)
 # [1.1] Hacer mas pruebas
 # [1.2] Revisar manejo de excepciones en 'get_process_list'
@@ -104,16 +105,16 @@ def get_process_info_v2(pid) -> Tuple[int, str, str, str, float, str, str]:
 
 
 def get_process_list(opt_level: int = OPTIMIZED_LEVEL_0) -> list:
-    """Devuelve la lista de procesos usando un nivel de optimizacion
+    """Devuelve la lista de procesos del sistema usando un nivel de optimización indicado
 
         Args:
-            opt_level (int): Nivel de optimización (0, 1 o 2).
+            opt_level (int): Nivel de optimización (0, 1 o 2)
 
         Returns:
-            List[Tuple]: Lista de tuplas con información de los procesos.
+            List[Tuple]: Lista de tuplas con información de los procesos
     """
     if opt_level not in [OPTIMIZED_LEVEL_0, OPTIMIZED_LEVEL_1, OPTIMIZED_LEVEL_2]:
-        raise ValueError("El nivel de optimización debe ser 0, 1 o 2.")
+        raise ValueError("El nivel de optimización debe ser 0, 1 o 2")
 
     pids = [p.info['pid'] for p in psutil.process_iter(attrs=['pid'])]
 

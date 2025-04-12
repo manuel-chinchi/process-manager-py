@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, font
 import config
-import pmcore  # custom libs
+import core
 import os
 import subprocess
 import pyperclip
@@ -153,6 +153,7 @@ class ProcessManager:
         self._lbl_total.pack(side="left", padx=5)
 
     def _create_settings_window(self):
+        """Crea la ventana de configuración"""
         self._top_settings = tk.Toplevel(self._root)
         self._top_settings.title(
             config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
@@ -182,7 +183,7 @@ class ProcessManager:
         self._btn_close.pack(pady=10, ipadx=35)
 
     def _close_settings_window(self):
-        """Cierra la ventana de configuración y libera el foco"""
+        """Cierra la ventana de configuración liberando el foco"""
         if self._top_settings and self._top_settings.winfo_exists():
             self._top_settings.grab_release()  # Libera el foco
             self._top_settings.destroy()
@@ -272,7 +273,7 @@ class ProcessManager:
         self._context_menu.configure(bg=theme["bg2"], fg=theme["fg"])
 
     def _toggle_theme(self):
-        """Alterna entre el tema claro y oscuro y luego reinicia la aplicación"""
+        """Alterna entre el tema claro y oscuro de la aplicación"""
         if self._theme == config.LIGHT_THEME:
             self._apply_theme(config.DARK_THEME)
         else:
@@ -407,22 +408,22 @@ class ProcessManager:
         # NOTE Refactorización parcial, hasta implementar una version estable de 'pmcore'
         # se va a dejar la implementacion anterior. Ahora usa el nivel mas rapido para 
         # obtener los procesos.
-        process_list = pmcore.get_process_list(pmcore.OPTIMIZED_LEVEL_2)
+        process_list = core.get_process_list(core.OPTIMIZED_LEVEL_2)
 
         for process in process_list:
             self._process_list.\
                 append((
-                    process[pmcore.COL_PID],
-                    process[pmcore.COL_NAME],
-                    process[pmcore.COL_STATUS],
-                    process[pmcore.COL_EXE]
+                    process[core.COL_PID],
+                    process[core.COL_NAME],
+                    process[core.COL_STATUS],
+                    process[core.COL_EXE]
                 ))
             self._tree_processes.\
                 insert("", "end",
-                       values=(process[pmcore.COL_PID],
-                               process[pmcore.COL_NAME],
-                               process[pmcore.COL_STATUS],
-                               process[pmcore.COL_EXE]))
+                       values=(process[core.COL_PID],
+                               process[core.COL_NAME],
+                               process[core.COL_STATUS],
+                               process[core.COL_EXE]))
 
         self._lbl_total.config(
             text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(self._process_list)}")
