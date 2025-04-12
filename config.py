@@ -162,10 +162,8 @@ MENU_CONTEXT = {
     MENU_OPT_OPEN_LOCATION_PROCESS: "Abrir ubicación de ejecutable"
 }
 
-def adjust_dpi():
-    # NOTE Solucion DPI alto
-    # En pantallas con DPI alto se soluciona la vista borrosa de los controles
-    # https://stackoverflow.com/questions/62794931/high-dpi-tkinter-re-scaling-when-i-run-it-in-spyder-and-when-i-run-it-direct-in
+def adjust_dpi_win32():
+    """Ajusta el renderizado de la aplicación para pantallas con DPI alto"""
     import ctypes
     try:  # >= win 8.1
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -174,11 +172,10 @@ def adjust_dpi():
 
 
 def set_bg_color_title_bar(window, color=THEME_LIGHT):
-    # HACK solucion no convencional
-    # https://stackoverflow.com/questions/23836000/can-i-change-the-title-bar-in-tkinter
     """
-    Mas informacíón:
-    https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
+    Establece el color de la barra de título de la ventana del programa
+
+    Mas informacíón: https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
     """
     window.update()
     DWMWA_USE_IMMERSIVE_DARK_MODE = 20

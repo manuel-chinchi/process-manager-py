@@ -126,7 +126,10 @@ def get_process_list(opt_level: int = OPTIMIZED_LEVEL_0) -> list:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             return list(pool.map(get_process_info_v2, pids))
 
-
 def avoid_thread_overflow():
+    """
+    Evita la generación de multiples instancias del programa
+    Requerido para generar el .exe correctamente con PyInstaller en Windows
+    """
     multiprocessing.freeze_support()
     multiprocessing.set_start_method("spawn")
