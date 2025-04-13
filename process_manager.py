@@ -34,7 +34,6 @@ class ProcessManager:
         self._btn_update = None
         self._btn_settings = None
         self._lbl_total = None
-
         self._create_main_window()
 
         # Ventana de configuración ---------------------------------
@@ -45,16 +44,18 @@ class ProcessManager:
         self._btn_close = None
         self._flag_adjust_cols = tk.BooleanVar(value=True)
         self._flag_change_theme = tk.BooleanVar(value=False)
-        self._order_asc = {MainResources.ID_COLUMN_PID: False,
-                           MainResources.ID_COLUMN_PROCESS_NAME: True,
-                           MainResources.ID_COLUMN_STATUS: True,
-                           MainResources.ID_COLUMN_LOCATION: True}
+        # se utiliza para la funcion '_sort_column' solamente
+        self._order_asc = {
+            MainResources.ID_COLUMN_PID: False,
+            MainResources.ID_COLUMN_PROCESS_NAME: True,
+            MainResources.ID_COLUMN_STATUS: True,
+            MainResources.ID_COLUMN_LOCATION: True
+        }
         self._process_list = []
-        self._theme = None
-
-        self._apply_theme(ThemesResources.LIGHT_THEME)
-
         self._update_process_list()
+
+        self._theme = None
+        self._apply_theme(ThemesResources.LIGHT_THEME)
 
     def _get_process_id(self):
         return os.getpid()
@@ -285,6 +286,7 @@ class ProcessManager:
         # refresh_window(self._top_settings, sleep=1800)
 
     def _sort_column(self, column):
+        # TODO simplificar
         data = [(self._tree_processes.item(row)["values"][0], self._tree_processes.item(row)["values"][1], self._tree_processes.item(
             row)["values"][2], self._tree_processes.item(row)["values"][3]) for row in self._tree_processes.get_children()]
 
@@ -312,17 +314,33 @@ class ProcessManager:
             self._tree_processes.insert(
                 "", "end", values=(pid, name, status, location))
 
-        column_headers = [MainResources.ID_COLUMN_PID, 
-                          MainResources.ID_COLUMN_PROCESS_NAME,
-                          MainResources.ID_COLUMN_STATUS, 
-                          MainResources.ID_COLUMN_LOCATION]
+        column_headers = [
+            MainResources.ID_COLUMN_PID,
+            MainResources.ID_COLUMN_PROCESS_NAME,
+            MainResources.ID_COLUMN_STATUS,
+            MainResources.ID_COLUMN_LOCATION
+        ]
 
+        text = ""
+        symbol = ""
         for col in column_headers:
+            if col == MainResources.ID_COLUMN_PID:
+                text = MainResources.TEXT_COLUMN_PID
+            elif col == MainResources.ID_COLUMN_PROCESS_NAME:
+                text = MainResources.TEXT_COLUMN_PROCESS_NAME
+            elif col == MainResources.ID_COLUMN_STATUS:
+                text = MainResources.TEXT_COLUMN_STATUS
+            elif col == MainResources.ID_COLUMN_LOCATION:
+                text = MainResources.TEXT_COLUMN_LOCATION
+
             if col == column:
-                symbol = IconResources.SORT_ASC_ICON if self._order_asc[col] else IconResources.SORT_DESC_ICON
+                if self._order_asc[col]:
+                    symbol = IconResources.SORT_ASC_ICON
+                else:
+                    symbol = IconResources.SORT_DESC_ICON
             else:
                 symbol = ""
-            text = MainResources.TEXT_COLUMN_PID if col == MainResources.ID_COLUMN_PID else MainResources.TEXT_COLUMN_PROCESS_NAME if col == MainResources.ID_COLUMN_PROCESS_NAME else MainResources.TEXT_COLUMN_STATUS if col == MainResources.ID_COLUMN_STATUS else MainResources.TEXT_COLUMN_LOCATION
+
             self._tree_processes.heading(col, text=f"{text} {symbol}")
 
     def _auto_adjust_columns(self):
@@ -374,7 +392,7 @@ class ProcessManager:
             text=f"{MainResources.TEXT_TOTAL}: {len(filtered_data)}")
 
     def _update_process_list(self):
-        # TODO refactorizar este metodo
+        # TODO refactorizar
         """Actualiza la lista de procesos"""
         for process in self._tree_processes.get_children():
             self._tree_processes.delete(process)
