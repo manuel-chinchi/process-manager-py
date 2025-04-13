@@ -37,6 +37,8 @@ COL_CPU_PERCENT = 4
 COL_MEMORY_INFO = 5
 COL_EXE = 6
 
+
+
 temp_dir = tempfile.gettempdir()  # C:\Users\usuario\AppData\Local\Temp
 cache_path = os.path.join(temp_dir, "_ProcessManagerPy_")
 cache = Cache(cache_path)

@@ -1,10 +1,12 @@
 import tkinter as tk
 from tkinter import ttk, font
-import config
 import core
 import os
 import subprocess
 import pyperclip
+from config import \
+    MainResources, SettingsResources, ThemesResources, IconResources, \
+    resource_path, set_bg_color_title_bar
 
 resize_timer = None
 
@@ -43,12 +45,14 @@ class ProcessManager:
         self._btn_close = None
         self._flag_adjust_cols = tk.BooleanVar(value=True)
         self._flag_change_theme = tk.BooleanVar(value=False)
-        self._order_asc = {config.COLUMN_ID: False, config.COLUMN_PROCESS_NAME: True,
-                           config.COLUMN_STATUS: True, config.COLUMN_LOCATION: True}
+        self._order_asc = {MainResources.ID_COLUMN_PID: False,
+                           MainResources.ID_COLUMN_PROCESS_NAME: True,
+                           MainResources.ID_COLUMN_STATUS: True,
+                           MainResources.ID_COLUMN_LOCATION: True}
         self._process_list = []
         self._theme = None
 
-        self._apply_theme(config.LIGHT_THEME)
+        self._apply_theme(ThemesResources.LIGHT_THEME)
 
         self._update_process_list()
 
@@ -61,10 +65,10 @@ class ProcessManager:
         self._style = ttk.Style(self._root)
 
         # Ventana principal ---------------------------------
-        self._root.title(f"{config.APP_TITLE} [PID: {self._pid}]")
-        self._root.geometry(config.WINDOW_SIZE)
+        self._root.title(f"{MainResources.TITLE} [PID: {self._pid}]")
+        self._root.geometry(MainResources.SIZE)
         self._root.withdraw()
-        self._root.iconbitmap(config.resource_path(config.APP_ICON))
+        self._root.iconbitmap(resource_path(IconResources.APP_ICON))
         self._root.bind("<Configure>", self._on_window_resize)
 
         self._fra_main = tk.Frame(self._root)
@@ -88,29 +92,31 @@ class ProcessManager:
         self._style.configure("Custom.Treeview", borderwidth=0, relief="flat")
 
         self._tree_processes = ttk.Treeview(self._fra_main,
-                                           columns=(config.COLUMN_ID, config.COLUMN_PROCESS_NAME,
-                                                    config.COLUMN_STATUS, config.COLUMN_LOCATION),
-                                           show="headings",
-                                           style="Custom.Treeview")
+                                            columns=(MainResources.ID_COLUMN_PID,
+                                                     MainResources.ID_COLUMN_PROCESS_NAME,
+                                                     MainResources.ID_COLUMN_STATUS,
+                                                     MainResources.ID_COLUMN_LOCATION),
+                                            show="headings",
+                                            style="Custom.Treeview")
         self._tree_processes.heading(
-            config.COLUMN_ID, text=config.COLUMN_HEADERS[config.COLUMN_ID], anchor='w', command=lambda: self._sort_column(config.COLUMN_ID))
-        self._tree_processes.heading(config.COLUMN_PROCESS_NAME,
-                                    text=config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME], anchor='w', command=lambda: self._sort_column(config.COLUMN_PROCESS_NAME))
+            MainResources.ID_COLUMN_PID, text=MainResources.TEXT_COLUMN_PID, anchor='w', command=lambda: self._sort_column(MainResources.ID_COLUMN_PID))
         self._tree_processes.heading(
-            config.COLUMN_STATUS, text=config.COLUMN_HEADERS[config.COLUMN_STATUS], anchor='w', command=lambda: self._sort_column(config.COLUMN_STATUS))
-        self._tree_processes.heading(config.COLUMN_LOCATION,
-                                    text=config.COLUMN_HEADERS[config.COLUMN_LOCATION], anchor='w', command=lambda: self._sort_column(config.COLUMN_LOCATION))
-        self._tree_processes.column(config.COLUMN_ID, width=5,
-                                   anchor="w", minwidth=75, stretch=True)
-        self._tree_processes.column(config.COLUMN_PROCESS_NAME, width=20,
-                                   anchor="w", minwidth=180, stretch=True)
-        self._tree_processes.column(config.COLUMN_STATUS, width=10,
-                                   anchor="w", minwidth=100, stretch=True)
-        self._tree_processes.column(config.COLUMN_LOCATION, width=150,
-                                   anchor="w", minwidth=150, stretch=True)
+            MainResources.ID_COLUMN_PROCESS_NAME, text=MainResources.TEXT_COLUMN_PROCESS_NAME, anchor='w', command=lambda: self._sort_column(MainResources.ID_COLUMN_PROCESS_NAME))
+        self._tree_processes.heading(
+            MainResources.ID_COLUMN_STATUS, text=MainResources.TEXT_COLUMN_STATUS, anchor='w', command=lambda: self._sort_column(MainResources.ID_COLUMN_STATUS))
+        self._tree_processes.heading(
+            MainResources.ID_COLUMN_LOCATION, text=MainResources.TEXT_COLUMN_LOCATION, anchor='w', command=lambda: self._sort_column(MainResources.ID_COLUMN_LOCATION))
 
-        self._scb_y_tree = tk.Scrollbar(self._fra_main, orient="vertical",
-                                     command=self._tree_processes.yview)
+        self._tree_processes.column(
+            MainResources.ID_COLUMN_PID, width=5, anchor="w", minwidth=75, stretch=True)
+        self._tree_processes.column(
+            MainResources.ID_COLUMN_PROCESS_NAME, width=20, anchor="w", minwidth=180, stretch=True)
+        self._tree_processes.column(
+            MainResources.ID_COLUMN_STATUS, width=10, anchor="w", minwidth=100, stretch=True)
+        self._tree_processes.column(
+            MainResources.ID_COLUMN_LOCATION, width=150, anchor="w", minwidth=150, stretch=True)
+
+        self._scb_y_tree = tk.Scrollbar(self._fra_main, orient="vertical", command=self._tree_processes.yview)
         self._scb_y_tree.pack(side="right", fill="y")
 
         # Scrollbar Y
@@ -119,10 +125,8 @@ class ProcessManager:
 
         # Menú contextual
         self._context_menu = tk.Menu(self._root, tearoff=0)
-        self._context_menu.add_command(
-            label=config.MENU_CONTEXT[config.MENU_OPT_COPY_TO_CLIPBOARD], command=self._copy_content_to_clipboard)
-        self._context_menu.add_command(
-            label=config.MENU_CONTEXT[config.MENU_OPT_OPEN_LOCATION_PROCESS], command=self._open_location_process)
+        self._context_menu.add_command(label=MainResources.TEXT_COPY_TO_CLIPBOARD, command=self._copy_content_to_clipboard)
+        self._context_menu.add_command(label=MainResources.TEXT_OPEN_LOCATION_PROCESS, command=self._open_location_process)
 
         self._tree_processes.bind("<Button-3>", self._show_context_menu)
 
@@ -136,29 +140,23 @@ class ProcessManager:
         self._inp_search.pack(side="left", padx=5, ipady=6)
         self._inp_search.bind('<Return>', lambda event: self._filter_process_list())
 
-        self._btn_buscar = tk.Button(
-            self._frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SEARCH], command=self._filter_process_list)
+        self._btn_buscar = tk.Button(self._frm_bottom_bar, text=MainResources.TEXT_SEARCH, command=self._filter_process_list)
         self._btn_buscar.pack(side="left", padx=5, ipadx=20)
 
-        self._btn_update = tk.Button(
-            self._frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_UPDATE], command=self._update_process_list)
+        self._btn_update = tk.Button(self._frm_bottom_bar, text=MainResources.TEXT_UPDATE, command=self._update_process_list)
         self._btn_update.pack(side="left", padx=2, ipadx=15)
 
-        self._btn_settings = tk.Button(
-            self._frm_bottom_bar, text=config.BOTTOM_FRAME[config.BUTTON_SETTINGS], command=self._show_settings_window)
+        self._btn_settings = tk.Button(self._frm_bottom_bar, text=MainResources.TEXT_SETTINGS, command=self._show_settings_window)
         self._btn_settings.pack(side="left", padx=5, ipadx=10)
 
-        self._lbl_total = tk.Label(
-            self._frm_bottom_bar, text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: 0")
+        self._lbl_total = tk.Label(self._frm_bottom_bar, text=f"{MainResources.TEXT_TOTAL}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
     def _create_settings_window(self):
         """Crea la ventana de configuración"""
         self._top_settings = tk.Toplevel(self._root)
-        self._top_settings.title(
-            config.SETTINGS_OPTIONS[config.TITLE_WND_SETTINGS])
-        self._top_settings.geometry(
-            config.SETTINGS_OPTIONS[config.SIZE_WND_SETTINGS])
+        self._top_settings.title(SettingsResources.TITLE)
+        self._top_settings.geometry(SettingsResources.SIZE)
         self._top_settings.resizable(False, False)
         self._top_settings.attributes("-toolwindow", True)
 
@@ -171,15 +169,15 @@ class ProcessManager:
         self._frm_checks.pack(padx=10, pady=10, anchor="w")
 
         self._check_flag_adjust_cols = tk.Checkbutton(
-            self._frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_ADJUST_AUTOMATIC_COLS], variable=self._flag_adjust_cols)
+            self._frm_checks, text=SettingsResources.TEXT_ADJUST_WIDTH_COLS, variable=self._flag_adjust_cols)
         self._check_flag_adjust_cols.pack(anchor="w")
 
         self._chk_flag_change_theme = tk.Checkbutton(
-            self._frm_checks, text=config.SETTINGS_OPTIONS[config.CHECKBOX_DARK_THEME], variable=self._flag_change_theme, command=self._toggle_theme)
+            self._frm_checks, text=SettingsResources.TEXT_ENABLE_DARK_THEME, variable=self._flag_change_theme, command=self._toggle_theme)
         self._chk_flag_change_theme.pack(anchor="w")
 
         self._btn_close = tk.Button(
-            self._top_settings, text=config.SETTINGS_OPTIONS[config.BUTTON_CLOSE_SETTINGS], command=self._close_settings_window)
+            self._top_settings, text=SettingsResources.TEXT_CLOSE, command=self._close_settings_window)
         self._btn_close.pack(pady=10, ipadx=35)
 
     def _close_settings_window(self):
@@ -213,7 +211,7 @@ class ProcessManager:
         """Aplica el tema indicado a la interfaz gráfica de todas las ventanas y controles del programa"""
         self._theme = theme
 
-        config.set_bg_color_title_bar(self._root, color=self._theme["name"])
+        set_bg_color_title_bar(self._root, color=self._theme["name"])
         
         # Configuracion de colores para widgets de ttk
         self._root.config(bg=self._theme["bg2"])
@@ -231,7 +229,7 @@ class ProcessManager:
                                activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
         
         if self._top_settings != None:
-            config.set_bg_color_title_bar(self._top_settings, color=self._theme["name"])
+            set_bg_color_title_bar(self._top_settings, color=self._theme["name"])
             self._top_settings.config(bg=self._theme["bg2"])
         if self._frm_checks != None:
             self._frm_checks.config(bg=self._theme["bg2"])
@@ -252,12 +250,12 @@ class ProcessManager:
         # Configuración de colores según eventos de widgets de ttk
         self._style.theme_use("clam")  # alt | classic
         self._style.map("Treeview.Heading",
-                       background=[("active", config.COLOR_SKYBLUE0),
+                       background=[("active", ThemesResources.COLOR_SKYBLUE0),
                                    # fondo cabecera
-                                   ("!active", config.COLOR_SKYBLUE1)],
-                       foreground=[("active", config.COLOR_WHITE0),
+                                   ("!active", ThemesResources.COLOR_SKYBLUE1)],
+                       foreground=[("active", ThemesResources.COLOR_WHITE0),
                                    # texto cabecera
-                                   ("!active", config.COLOR_WHITE0)],
+                                   ("!active", ThemesResources.COLOR_WHITE0)],
                        relief="flat")
         self._style.map("Custom.Treeview",
                        background=[("selected", self._theme["treeview_background_selected"]),
@@ -274,10 +272,10 @@ class ProcessManager:
 
     def _toggle_theme(self):
         """Alterna entre el tema claro y oscuro de la aplicación"""
-        if self._theme == config.LIGHT_THEME:
-            self._apply_theme(config.DARK_THEME)
+        if self._theme == ThemesResources.LIGHT_THEME:
+            self._apply_theme(ThemesResources.DARK_THEME)
         else:
-            self._apply_theme(config.LIGHT_THEME)
+            self._apply_theme(ThemesResources.LIGHT_THEME)
 
         # TODO Posicion de ventanas
         # Se pierde la ultima posicion de la ventana y es algo incomo que se recupere en la posicion y tamaño original
@@ -290,22 +288,22 @@ class ProcessManager:
         data = [(self._tree_processes.item(row)["values"][0], self._tree_processes.item(row)["values"][1], self._tree_processes.item(
             row)["values"][2], self._tree_processes.item(row)["values"][3]) for row in self._tree_processes.get_children()]
 
-        if column == config.COLUMN_ID:
+        if column == MainResources.ID_COLUMN_PID:
             data.sort(key=lambda x: int(
-                x[0]), reverse=not self._order_asc[config.COLUMN_ID])
-            self._order_asc[config.COLUMN_ID] = not self._order_asc[config.COLUMN_ID]
-        elif column == config.COLUMN_PROCESS_NAME:
+                x[0]), reverse=not self._order_asc[MainResources.ID_COLUMN_PID])
+            self._order_asc[MainResources.ID_COLUMN_PID] = not self._order_asc[MainResources.ID_COLUMN_PID]
+        elif column == MainResources.ID_COLUMN_PROCESS_NAME:
             data.sort(key=lambda x: x[1].lower(
-            ), reverse=not self._order_asc[config.COLUMN_PROCESS_NAME])
-            self._order_asc[config.COLUMN_PROCESS_NAME] = not self._order_asc[config.COLUMN_PROCESS_NAME]
-        elif column == config.COLUMN_STATUS:
+            ), reverse=not self._order_asc[MainResources.ID_COLUMN_PROCESS_NAME])
+            self._order_asc[MainResources.ID_COLUMN_PROCESS_NAME] = not self._order_asc[MainResources.ID_COLUMN_PROCESS_NAME]
+        elif column == MainResources.ID_COLUMN_STATUS:
             data.sort(key=lambda x: x[2].lower(
-            ), reverse=not self._order_asc[config.COLUMN_STATUS])
-            self._order_asc[config.COLUMN_STATUS] = not self._order_asc[config.COLUMN_STATUS]
-        elif column == config.COLUMN_LOCATION:
+            ), reverse=not self._order_asc[MainResources.ID_COLUMN_STATUS])
+            self._order_asc[MainResources.ID_COLUMN_STATUS] = not self._order_asc[MainResources.ID_COLUMN_STATUS]
+        elif column == MainResources.ID_COLUMN_LOCATION:
             data.sort(key=lambda x: x[3].lower(
-            ), reverse=not self._order_asc[config.COLUMN_LOCATION])
-            self._order_asc[config.COLUMN_LOCATION] = not self._order_asc[config.COLUMN_LOCATION]
+            ), reverse=not self._order_asc[MainResources.ID_COLUMN_LOCATION])
+            self._order_asc[MainResources.ID_COLUMN_LOCATION] = not self._order_asc[MainResources.ID_COLUMN_LOCATION]
 
         for row in self._tree_processes.get_children():
             self._tree_processes.delete(row)
@@ -314,16 +312,17 @@ class ProcessManager:
             self._tree_processes.insert(
                 "", "end", values=(pid, name, status, location))
 
-        column_headers = [config.COLUMN_ID, config.COLUMN_PROCESS_NAME,
-                          config.COLUMN_STATUS, config.COLUMN_LOCATION]
+        column_headers = [MainResources.ID_COLUMN_PID, 
+                          MainResources.ID_COLUMN_PROCESS_NAME,
+                          MainResources.ID_COLUMN_STATUS, 
+                          MainResources.ID_COLUMN_LOCATION]
 
         for col in column_headers:
             if col == column:
-                symbol = config.SORT_ASC_ICON if self._order_asc[col] else config.SORT_DESC_ICON
+                symbol = IconResources.SORT_ASC_ICON if self._order_asc[col] else IconResources.SORT_DESC_ICON
             else:
                 symbol = ""
-            text = config.COLUMN_HEADERS[config.COLUMN_ID] if col == config.COLUMN_ID else config.COLUMN_HEADERS[config.COLUMN_PROCESS_NAME] if col == config.COLUMN_PROCESS_NAME else config.COLUMN_HEADERS[
-                config.COLUMN_STATUS] if col == config.COLUMN_STATUS else config.COLUMN_HEADERS[config.COLUMN_LOCATION]
+            text = MainResources.TEXT_COLUMN_PID if col == MainResources.ID_COLUMN_PID else MainResources.TEXT_COLUMN_PROCESS_NAME if col == MainResources.ID_COLUMN_PROCESS_NAME else MainResources.TEXT_COLUMN_STATUS if col == MainResources.ID_COLUMN_STATUS else MainResources.TEXT_COLUMN_LOCATION
             self._tree_processes.heading(col, text=f"{text} {symbol}")
 
     def _auto_adjust_columns(self):
@@ -372,7 +371,7 @@ class ProcessManager:
                 "", tk.END, values=(pid, name, status, location))
 
         self._lbl_total.config(
-            text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(filtered_data)}")
+            text=f"{MainResources.TEXT_TOTAL}: {len(filtered_data)}")
 
     def _update_process_list(self):
         # TODO refactorizar este metodo
@@ -426,11 +425,10 @@ class ProcessManager:
                                process[core.COL_EXE]))
 
         self._lbl_total.config(
-            text=f"{config.BOTTOM_FRAME[config.LABEL_TOTAL]}: {len(self._process_list)}")
-
+            text=f"{MainResources.TEXT_TOTAL}: {len(self._process_list)}")
         # Lista ordenada por defecto por 'ID'
-        self._tree_processes.heading(column=config.COLUMN_ID,
-                                    text=f"{config.COLUMN_HEADERS[config.COLUMN_ID]} {config.SORT_DESC_ICON}")
+        self._tree_processes.heading(column=MainResources.ID_COLUMN_PID,
+                                     text=f"{MainResources.TEXT_COLUMN_PID} {IconResources.SORT_DESC_ICON}")
 
     def _on_window_resize(self, event):
         """Se ejecuta cuando la ventana cambia de tamaño"""
