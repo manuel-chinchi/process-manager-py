@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, font
-import core
+from core import Constants, get_process_list
 import os
 import subprocess
 import pyperclip
@@ -425,22 +425,22 @@ class ProcessManager:
         # NOTE Refactorización parcial, hasta implementar una version estable de 'pmcore'
         # se va a dejar la implementacion anterior. Ahora usa el nivel mas rapido para 
         # obtener los procesos.
-        process_list = core.get_process_list(core.OPTIMIZED_LEVEL_2)
+        process_list = get_process_list(Constants.OPTIMIZED_LEVEL_2)
 
         for process in process_list:
             self._process_list.\
                 append((
-                    process[core.COL_PID],
-                    process[core.COL_NAME],
-                    process[core.COL_STATUS],
-                    process[core.COL_EXE]
+                    process[Constants.COL_PID],
+                    process[Constants.COL_NAME],
+                    process[Constants.COL_STATUS],
+                    process[Constants.COL_EXE]
                 ))
             self._tree_processes.\
                 insert("", "end",
-                       values=(process[core.COL_PID],
-                               process[core.COL_NAME],
-                               process[core.COL_STATUS],
-                               process[core.COL_EXE]))
+                       values=(process[Constants.COL_PID],
+                               process[Constants.COL_NAME],
+                               process[Constants.COL_STATUS],
+                               process[Constants.COL_EXE]))
 
         self._lbl_total.config(
             text=f"{MainResources.TEXT_TOTAL}: {len(self._process_list)}")

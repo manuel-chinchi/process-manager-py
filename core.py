@@ -23,19 +23,20 @@ import tempfile
 import os
 
 
-# Estimated times to 'get_process_list'
-OPTIMIZED_LEVEL_0 = 0  # ~4s
-OPTIMIZED_LEVEL_1 = 1  # ~2,5s / 2s
-OPTIMIZED_LEVEL_2 = 2  # ~1s
-CACHE_EXPIRATION = 60  # seconds
+class Constants:
+    # Estimated times to 'get_process_list'
+    OPTIMIZED_LEVEL_0 = 0  # ~4s
+    OPTIMIZED_LEVEL_1 = 1  # ~2,5s / 2s
+    OPTIMIZED_LEVEL_2 = 2  # ~1s
+    CACHE_EXPIRATION = 60  # seconds
 
-COL_PID = 0
-COL_NAME = 1
-COL_STATUS = 2
-COL_CREATE_TIME = 3
-COL_CPU_PERCENT = 4
-COL_MEMORY_INFO = 5
-COL_EXE = 6
+    COL_PID = 0
+    COL_NAME = 1
+    COL_STATUS = 2
+    COL_CREATE_TIME = 3
+    COL_CPU_PERCENT = 4
+    COL_MEMORY_INFO = 5
+    COL_EXE = 6
 
 
 
@@ -89,7 +90,7 @@ def get_process_info_v2(pid) -> Tuple[int, str, str, str, float, str, str]:
             process.exe() or "___"
         )
         # cache[pid] = result  # Almacena el resultado en caché
-        cache.set(pid, result, CACHE_EXPIRATION)
+        cache.set(pid, result, Constants.CACHE_EXPIRATION)
         return result
     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
         result = (
@@ -101,12 +102,12 @@ def get_process_info_v2(pid) -> Tuple[int, str, str, str, float, str, str]:
             "N/A",
             "N/A"
         )
-        cache.set(pid, result, CACHE_EXPIRATION)
+        cache.set(pid, result, Constants.CACHE_EXPIRATION)
         # cache[pid] = result  # Almacena el resultado en caché
         return result
 
 
-def get_process_list(opt_level: int = OPTIMIZED_LEVEL_0) -> list:
+def get_process_list(opt_level: int = Constants.OPTIMIZED_LEVEL_0) -> list:
     """Devuelve la lista de procesos del sistema usando un nivel de optimización indicado
 
         Args:
@@ -115,17 +116,17 @@ def get_process_list(opt_level: int = OPTIMIZED_LEVEL_0) -> list:
         Returns:
             List[Tuple]: Lista de tuplas con información de los procesos
     """
-    if opt_level not in [OPTIMIZED_LEVEL_0, OPTIMIZED_LEVEL_1, OPTIMIZED_LEVEL_2]:
+    if opt_level not in [Constants.OPTIMIZED_LEVEL_0, Constants.OPTIMIZED_LEVEL_1, Constants.OPTIMIZED_LEVEL_2]:
         raise ValueError("El nivel de optimización debe ser 0, 1 o 2")
 
     pids = [p.info['pid'] for p in psutil.process_iter(attrs=['pid'])]
 
-    if opt_level == OPTIMIZED_LEVEL_0:
+    if opt_level == Constants.OPTIMIZED_LEVEL_0:
         return list(get_process_info(pid) for pid in pids)
-    elif opt_level == OPTIMIZED_LEVEL_1:
+    elif opt_level == Constants.OPTIMIZED_LEVEL_1:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             return list(pool.map(get_process_info, pids))
-    elif opt_level == OPTIMIZED_LEVEL_2:
+    elif opt_level == Constants.OPTIMIZED_LEVEL_2:
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             return list(pool.map(get_process_info_v2, pids))
 
