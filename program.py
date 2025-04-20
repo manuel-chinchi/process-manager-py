@@ -12,7 +12,7 @@ def main():
         adjust_app_DPI()
 
     root = tk.Tk()
-    pm = ProcessManager(root=root)
+    pm = ProcessManager(window=root)
     pm.start()
 
 

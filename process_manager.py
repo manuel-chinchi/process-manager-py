@@ -20,9 +20,9 @@ resize_timer = None
 
 
 class ProcessManager:
-    def __init__(self, root: tk.Tk):
+    def __init__(self, window: tk.Tk):
         # Ventana principal ---------------------------------
-        self._root = root
+        self._window = window
         self._pid = None
         self._style = None
         self._fra_main = None
@@ -73,21 +73,21 @@ class ProcessManager:
     def _create_main_window(self):
         """Crea la ventana principal del programa"""
         self._pid = self._get_process_id()
-        self._style = ttk.Style(self._root)
+        self._style = ttk.Style(self._window)
 
         # Ventana principal ---------------------------------
-        self._root.title(f"{MainResources.TITLE} v{MainResources.VERSION} [PID: {self._pid}]")
-        self._root.geometry(MainResources.SIZE)
-        self._root.withdraw()
-        self._root.iconbitmap(resource_path(IconResources.APP_ICON))
-        self._root.bind("<Configure>", self._on_window_resize)
+        self._window.title(f"{MainResources.TITLE} v{MainResources.VERSION} [PID: {self._pid}]")
+        self._window.geometry(MainResources.SIZE)
+        self._window.withdraw()
+        self._window.iconbitmap(resource_path(IconResources.APP_ICON))
+        self._window.bind("<Configure>", self._on_window_resize)
 
-        self._fra_main = tk.Frame(self._root)
+        self._fra_main = tk.Frame(self._window)
         self._fra_main.pack(expand=True, fill="both")
         self._fra_main.propagate(False)
 
         # Estilos ---------------------------------
-        self._style = ttk.Style(self._root)
+        self._style = ttk.Style(self._window)
         self._style.element_create(
             "Custom.Treeheading.border", "from", "default")
         self._style.layout("Custom.Treeview.Heading", [
@@ -135,7 +135,7 @@ class ProcessManager:
         self._tree_processes.pack(expand=True, fill="both")
 
         # Menú contextual
-        self._context_menu = tk.Menu(self._root, tearoff=0)
+        self._context_menu = tk.Menu(self._window, tearoff=0)
         self._context_menu.add_command(label=MainResources.TEXT_COPY_TO_CLIPBOARD, command=self._copy_content_to_clipboard)
         self._context_menu.add_command(label=MainResources.TEXT_OPEN_LOCATION_PROCESS, command=self._open_location_process)
 
@@ -144,7 +144,7 @@ class ProcessManager:
         # self.root.bind("<Configure>", self.on_window_resize)
 
         # Grupo de controles ---------------------------------
-        self._frm_bottom_bar = tk.Frame(self._root)
+        self._frm_bottom_bar = tk.Frame(self._window)
         self._frm_bottom_bar.pack(pady=10, fill="x")
 
         self._inp_search = tk.Entry(self._frm_bottom_bar, width=30)
@@ -166,47 +166,47 @@ class ProcessManager:
         self._create_menubar()
 
     def _close_main_window(self):
-        self._root.destroy()
+        self._window.destroy()
 
     def _create_menubar(self):
         """Crea la barra de menú principal de la aplicación """
-        menu_bar = tk.Menu(self._root)
+        menu_bar = tk.Menu(self._window)
 
-        submenu_file = tk.Menu(menu_bar, tearoff=False)
-        submenu_file.add_command(
+        menu_dropdown_file = tk.Menu(menu_bar, tearoff=False)
+        menu_dropdown_file.add_command(
             label="Actualizar lista de procesos", accelerator="Ctrl+R"
         )
-        submenu_file.add_command(
+        menu_dropdown_file.add_command(
             label="Salir", accelerator="Ctrl+E", command=self._close_main_window
         )
-        submenu_config = tk.Menu(menu_bar, tearoff=False)
-        submenu_config.add_command(
+        menu_dropdown_config = tk.Menu(menu_bar, tearoff=False)
+        menu_dropdown_config.add_command(
             label="Ajustes", accelerator="Ctrl+T", command=self._show_settings_window
         )
-        submenu_about = tk.Menu(menu_bar, tearoff=False)
-        submenu_about.add_command(
+        menu_dropdown_help = tk.Menu(menu_bar, tearoff=False)
+        menu_dropdown_help.add_command(
             label=f"Acerca de {MainResources.TITLE}...", command=self._show_about_window
         )
-        menu_bar.add_cascade(menu=submenu_file, label="Archivo")
-        menu_bar.add_cascade(menu=submenu_config, label="Configuración")
-        menu_bar.add_cascade(menu=submenu_about, label="Ayuda")
+        menu_bar.add_cascade(menu=menu_dropdown_file, label="Archivo")
+        menu_bar.add_cascade(menu=menu_dropdown_config, label="Configuración")
+        menu_bar.add_cascade(menu=menu_dropdown_help, label="Ayuda")
 
-        self._root.config(menu=menu_bar)
+        self._window.config(menu=menu_bar)
 
         # binding acceletaros with events
-        self._root.bind_all("<Control-e>", lambda event: self._close_main_window())
-        self._root.bind_all("<Control-t>", lambda event: self._show_settings_window())
-        self._root.bind_all("<Control-r>", lambda event: self._update_process_list())
+        self._window.bind_all("<Control-e>", lambda event: self._close_main_window())
+        self._window.bind_all("<Control-t>", lambda event: self._show_settings_window())
+        self._window.bind_all("<Control-r>", lambda event: self._update_process_list())
 
     def _create_about_window(self):
-        self._top_about = tk.Toplevel(self._root, padx=20, pady=20)
+        self._top_about = tk.Toplevel(self._window, padx=20, pady=20)
         self._top_about.title("Acerca de")
         # Ventana tipo popup
         self._top_about.resizable(False, False)
         self._top_about.attributes("-toolwindow", True)
         # Hacer la ventana tipo modal
         self._top_about.grab_set()
-        self._top_about.transient(self._root)
+        self._top_about.transient(self._window)
 
         # self._top_about.configure()
         # Contenido
@@ -266,7 +266,7 @@ class ProcessManager:
 
     def _create_settings_window(self):
         """Crea la ventana de configuración"""
-        self._top_settings = tk.Toplevel(self._root)
+        self._top_settings = tk.Toplevel(self._window)
         self._top_settings.title(SettingsResources.TITLE)
         self._top_settings.geometry(SettingsResources.SIZE)
         self._top_settings.resizable(False, False)
@@ -274,7 +274,7 @@ class ProcessManager:
 
         # Hacer la ventana tipo modal
         self._top_settings.grab_set()  # Bloquea la interacción con otras ventanas
-        self._top_settings.transient(self._root)  # Asocia la ventana modal con la ventana principal
+        self._top_settings.transient(self._window)  # Asocia la ventana modal con la ventana principal
 
         # Panel de botones ---------------------------------
         self._frm_checks = tk.Frame(self._top_settings)
@@ -323,10 +323,10 @@ class ProcessManager:
         """Aplica el tema indicado a la interfaz gráfica de todas las ventanas y controles del programa"""
         self._theme = theme
 
-        set_bg_color_title_bar(self._root, color=self._theme["name"])
+        set_bg_color_title_bar(self._window, color=self._theme["name"])
         
         # Configuracion de colores para widgets de ttk
-        self._root.config(bg=self._theme["bg2"])
+        self._window.config(bg=self._theme["bg2"])
         self._fra_main.config(bg=self._theme["frame_bg"])
         self._frm_bottom_bar.config(bg=self._theme["frame_bg"])
         self._lbl_total.config(
@@ -574,9 +574,9 @@ class ProcessManager:
 
         # Si ya hay un temporizador en marcha, cancelarlo
         if resize_timer:
-            self._root.after_cancel(resize_timer)
+            self._window.after_cancel(resize_timer)
 
-        resize_timer = self._root.after(200, self._auto_adjust_columns)
+        resize_timer = self._window.after(200, self._auto_adjust_columns)
 
     def _show_context_menu(self, event):
         """Muestra el menú contextual al hacer clic derecho."""
@@ -644,9 +644,9 @@ class ProcessManager:
 
     def start(self):
         """Inicia la aplicación"""
-        self._center_window_on_screen(self._root)
-        self._root.deiconify()
-        self._root.mainloop()
+        self._center_window_on_screen(self._window)
+        self._window.deiconify()
+        self._window.mainloop()
 
     def _open_link(self, url: str):
         webbrowser.open_new(url)
