@@ -11,8 +11,8 @@ def main():
     if is_Windows():
         adjust_app_DPI()
 
-    root = tk.Tk()
-    pm = ProcessManager(window=root)
+    window = tk.Tk()
+    pm = ProcessManager(window=window)
     pm.start()
 
 

@@ -38,7 +38,7 @@ class ProcessManager:
         self._create_main_window()
 
         # Ventana de configuración ---------------------------------
-        self._top_settings = None
+        self._wnd_settings = None
         self._frm_checks = None
         self._check_flag_adjust_cols = None
         self._chk_flag_change_theme = None
@@ -47,7 +47,7 @@ class ProcessManager:
         self._flag_change_theme = tk.BooleanVar(value=False)
 
         # Ventana acerca de ---------------------------------
-        self._top_about = None
+        self._wnd_about = None
         self._lnk_repository = None
         self._lbl_title_about = None
         self._lbl_content_about = None
@@ -199,14 +199,14 @@ class ProcessManager:
         self._window.bind_all("<Control-r>", lambda event: self._update_process_list())
 
     def _create_about_window(self):
-        self._top_about = tk.Toplevel(self._window, padx=20, pady=20)
-        self._top_about.title("Acerca de")
+        self._wnd_about = tk.Toplevel(self._window, padx=20, pady=20)
+        self._wnd_about.title("Acerca de")
         # Ventana tipo popup
-        self._top_about.resizable(False, False)
-        self._top_about.attributes("-toolwindow", True)
+        self._wnd_about.resizable(False, False)
+        self._wnd_about.attributes("-toolwindow", True)
         # Hacer la ventana tipo modal
-        self._top_about.grab_set()
-        self._top_about.transient(self._window)
+        self._wnd_about.grab_set()
+        self._wnd_about.transient(self._window)
 
         # self._top_about.configure()
         # Contenido
@@ -219,32 +219,32 @@ class ProcessManager:
 
         # titulo
         self._lbl_title_about = tk.Label(
-            self._top_about, text=f"{MainResources.TITLE}", font=font_title, justify="left", anchor="w", width=27
+            self._wnd_about, text=f"{MainResources.TITLE}", font=font_title, justify="left", anchor="w", width=27
         )
         self._lbl_title_about.pack()
 
         # contenido
         self._lbl_content_about = tk.Label(
-            self._top_about, text=content_about, justify="left", anchor="w", width=37
+            self._wnd_about, text=content_about, justify="left", anchor="w", width=37
         )
         self._lbl_content_about.pack(pady=(10, 0))
 
         # link repo app
         self._lbl_repo_app = tk.Label(
-            self._top_about, text="ir al repositorio de la aplicación", font=font_link, cursor="hand2", justify="left", anchor="w", width=37
+            self._wnd_about, text="ir al repositorio de la aplicación", font=font_link, cursor="hand2", justify="left", anchor="w", width=37
         )
         self._lbl_repo_app.bind("<Button-1>", lambda event: self._open_link("https://github.com/manuel-chinchi/process-manager-py")) # evento click
         self._lbl_repo_app.pack(pady=(0, 50))
 
         # boton de cierre
         self._btn_close_about = tk.Button(
-            self._top_about, text="Aceptar", command=self._close_about_window, padx=25
+            self._wnd_about, text="Aceptar", command=self._close_about_window, padx=25
         )
         self._btn_close_about.pack()
 
     def _show_about_window(self):
         """ Muestra la ventana 'Acerca de' """
-        if self._top_about is None or not self._top_about.winfo_exists():
+        if self._wnd_about is None or not self._wnd_about.winfo_exists():
             self._create_about_window()
 
             self._open_about_window(False)
@@ -255,29 +255,29 @@ class ProcessManager:
 
     def _open_about_window(self, already_exists=False):
         if not already_exists:
-            self._top_about.withdraw()
-            self._center_window_on_screen(self._top_about)
-            self._top_about.deiconify()
+            self._wnd_about.withdraw()
+            self._center_window_on_screen(self._wnd_about)
+            self._wnd_about.deiconify()
         else:
-            self._top_about.deiconify()
+            self._wnd_about.deiconify()
 
     def _close_about_window(self):
-        self._top_about.destroy()
+        self._wnd_about.destroy()
 
     def _create_settings_window(self):
         """Crea la ventana de configuración"""
-        self._top_settings = tk.Toplevel(self._window)
-        self._top_settings.title(SettingsResources.TITLE)
-        self._top_settings.geometry(SettingsResources.SIZE)
-        self._top_settings.resizable(False, False)
-        self._top_settings.attributes("-toolwindow", True)
+        self._wnd_settings = tk.Toplevel(self._window)
+        self._wnd_settings.title(SettingsResources.TITLE)
+        self._wnd_settings.geometry(SettingsResources.SIZE)
+        self._wnd_settings.resizable(False, False)
+        self._wnd_settings.attributes("-toolwindow", True)
 
         # Hacer la ventana tipo modal
-        self._top_settings.grab_set()  # Bloquea la interacción con otras ventanas
-        self._top_settings.transient(self._window)  # Asocia la ventana modal con la ventana principal
+        self._wnd_settings.grab_set()  # Bloquea la interacción con otras ventanas
+        self._wnd_settings.transient(self._window)  # Asocia la ventana modal con la ventana principal
 
         # Panel de botones ---------------------------------
-        self._frm_checks = tk.Frame(self._top_settings)
+        self._frm_checks = tk.Frame(self._wnd_settings)
         self._frm_checks.pack(padx=10, pady=10, anchor="w")
 
         self._check_flag_adjust_cols = tk.Checkbutton(
@@ -289,27 +289,27 @@ class ProcessManager:
         self._chk_flag_change_theme.pack(anchor="w")
 
         self._btn_close = tk.Button(
-            self._top_settings, text=SettingsResources.TEXT_CLOSE, command=self._close_settings_window)
+            self._wnd_settings, text=SettingsResources.TEXT_CLOSE, command=self._close_settings_window)
         self._btn_close.pack(pady=10, ipadx=35)
 
     def _close_settings_window(self):
         """Cierra la ventana de configuración liberando el foco"""
-        if self._top_settings and self._top_settings.winfo_exists():
-            self._top_settings.grab_release()  # Libera el foco
-            self._top_settings.destroy()
+        if self._wnd_settings and self._wnd_settings.winfo_exists():
+            self._wnd_settings.grab_release()  # Libera el foco
+            self._wnd_settings.destroy()
 
     def _open_settings_window(self, already_exists=True):
         """Abre la ventana de configuración"""
         if not already_exists:
-            self._top_settings.withdraw()
-            self._center_window_on_screen(self._top_settings)
-            self._top_settings.deiconify()
+            self._wnd_settings.withdraw()
+            self._center_window_on_screen(self._wnd_settings)
+            self._wnd_settings.deiconify()
         else:
-            self._top_settings.deiconify()
+            self._wnd_settings.deiconify()
 
     def _show_settings_window(self):
         """Muestra la ventana de configuración"""
-        if self._top_settings is None or not self._top_settings.winfo_exists():
+        if self._wnd_settings is None or not self._wnd_settings.winfo_exists():
             self._create_settings_window()
 
             # Ocultar temporalmente y mostrar recién cuando esté centrada
@@ -340,9 +340,9 @@ class ProcessManager:
         self._btn_update.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
                                activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
         
-        if self._top_settings != None and self._top_settings.winfo_exists():
-            set_bg_color_title_bar(self._top_settings, color=self._theme["name"])
-            self._top_settings.config(bg=self._theme["bg2"])
+        if self._wnd_settings != None and self._wnd_settings.winfo_exists():
+            set_bg_color_title_bar(self._wnd_settings, color=self._theme["name"])
+            self._wnd_settings.config(bg=self._theme["bg2"])
             self._frm_checks.config(bg=self._theme["bg2"])
             self._btn_close.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
                                     activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
@@ -382,9 +382,9 @@ class ProcessManager:
         #     print(f"---cambiar tema en ABOUT")
         #     set_bg_color_title_bar(self._top_about, color=self._theme["name"])
         #     self._top_about.config(bg=self._theme["bg2"])
-        if self._top_about != None and self._top_about.winfo_exists():
-            set_bg_color_title_bar(self._top_about, color=self._theme["name"])
-            self._top_about.config(bg=self._theme["bg2"])
+        if self._wnd_about != None and self._wnd_about.winfo_exists():
+            set_bg_color_title_bar(self._wnd_about, color=self._theme["name"])
+            self._wnd_about.config(bg=self._theme["bg2"])
             self._lbl_title_about.config(bg=self._theme["bg2"], fg=self._theme["label_fg"])
             self._lbl_content_about.config(bg=self._theme["bg2"], fg=self._theme["label_fg"])
             self._lbl_repo_app.config(bg=self._theme["bg2"], fg=self._theme["label_fg_hyperlink"])
