@@ -80,6 +80,8 @@ class ThemesResources:
     COLOR_SKYBLUE3 = "#85C1E9"
     COLOR_SKYBLUE4 = "#AED6F1"
     COLOR_SKYBLUE5 = "#CDE8FF"  # ~taskmgr.exe row selected
+    COLOR_BLUE = "#0000ff"
+    COLOR_YELLOW = "#ffff00"
 
     THEME_LIGHT = 1000
     THEME_DARK = 2000
@@ -113,7 +115,8 @@ class ThemesResources:
         "checkbox_fg": COLOR_BLACK0,
         "checkbox_selectcolor": COLOR_WHITE0,  # color fondo del checkbox
         "checkbox_activeforeground": COLOR_BLACK0,  # color texto (al presionar)
-        "checkbox_activebackground": COLOR_WHITE1  # color fondo (al presionar)
+        "checkbox_activebackground": COLOR_WHITE1,  # color fondo (al presionar)
+        "label_fg_hyperlink": COLOR_BLUE
     }
 
     DARK_THEME = {
@@ -143,7 +146,8 @@ class ThemesResources:
         "checkbox_fg": COLOR_WHITE0,
         "checkbox_selectcolor": COLOR_SKYBLUE0,
         "checkbox_activeforeground": COLOR_WHITE1,
-        "checkbox_activebackground": COLOR_SKYBLUE0
+        "checkbox_activebackground": COLOR_SKYBLUE0,
+        "label_fg_hyperlink": COLOR_YELLOW
     }
 
 class IconResources:
@@ -152,8 +156,8 @@ class IconResources:
     SORT_DESC_ICON = "▼"
 
 class MainResources:
-    TITLE = "Adminstrador de procesos"  # -> WINDOW_TITLE
-    SIZE = "800x600"  # -> WINDOW_SIZE
+    TITLE = "Process Manager Py"
+    SIZE = "800x600"
     # columns id's
     ID_COLUMN_PID = 101
     ID_COLUMN_PROCESS_NAME = 102
@@ -170,9 +174,6 @@ class MainResources:
     TEXT_BUTTON_SETTINGS = "Configuración"
     TEXT_LABEL_TOTAL = "Total"
 
-    SORT_ASC_ICON = "▲"
-    SORT_DESC_ICON = "▼"
-
     ID_CONTEXT_MENU = 1020
     ID_MENU_OPT_COPY_TO_CLIPBOARD = 1021
     ID_MENU_OPT_OPEN_LOCATION_PROCESS = 1022
@@ -184,6 +185,8 @@ class MainResources:
     TEXT_UPDATE = "Actualizar"
     TEXT_SETTINGS = "Configuración"
     TEXT_TOTAL = "Total"
+
+    URL_REPOSITORY = "https://github.com/manuel-chinchi/process-manager-py"
 
 class SettingsResources:
     TITLE = "Configuración"

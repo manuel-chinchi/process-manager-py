@@ -7,6 +7,7 @@ import pyperclip
 from config import \
     MainResources, SettingsResources, ThemesResources, IconResources, \
     resource_path, set_bg_color_title_bar
+import webbrowser
 
 resize_timer = None
 
@@ -44,7 +45,16 @@ class ProcessManager:
         self._btn_close = None
         self._flag_adjust_cols = tk.BooleanVar(value=True)
         self._flag_change_theme = tk.BooleanVar(value=False)
-        # se utiliza para la funcion '_sort_column' solamente
+
+        # Ventana acerca de ---------------------------------
+        self._top_about = None
+        self._lnk_repository = None
+        self._lbl_title_about = None
+        self._lbl_content_about = None
+        self._btn_close_about = None
+
+        # Otros ---------------------------------
+        # dict que se utiliza para indicar el orden de las columnas en '_sort_column'
         self._order_asc = {
             MainResources.ID_COLUMN_PID: False,
             MainResources.ID_COLUMN_PROCESS_NAME: True,
@@ -153,6 +163,98 @@ class ProcessManager:
         self._lbl_total = tk.Label(self._frm_bottom_bar, text=f"{MainResources.TEXT_TOTAL}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
+        self._create_main_menu()
+
+    def _close_main_window(self):
+        self._root.destroy()
+
+    def _create_main_menu(self):
+        """Crea la barra de menú principal de la aplicación """
+        menu_bar = tk.Menu()
+        submenu_file = tk.Menu(menu_bar, tearoff=False)
+        submenu_file.add_command(
+            label="Salir", accelerator="Ctrl+E", command=self._close_main_window
+        )
+        submenu_config = tk.Menu(menu_bar, tearoff=False)
+        submenu_config.add_command(
+            label="Ajustes", command=self._show_settings_window
+        )
+        submenu_about = tk.Menu(menu_bar, tearoff=False)
+        submenu_about.add_command(
+            label=f"Acerca de {MainResources.TITLE}...", command=self._show_about_window
+        )
+        menu_bar.add_cascade(menu=submenu_file, label="Archivo")
+        menu_bar.add_cascade(menu=submenu_config, label="Configuración")
+        menu_bar.add_cascade(menu=submenu_about, label="Ayuda")
+
+        self._root.config(menu=menu_bar)
+
+    def _create_about_window(self):
+        self._top_about = tk.Toplevel(self._root, padx=20, pady=20)
+        self._top_about.title("Acerca de")
+        # Ventana tipo popup
+        self._top_about.resizable(False, False)
+        self._top_about.attributes("-toolwindow", True)
+        # Hacer la ventana tipo modal
+        self._top_about.grab_set()
+        self._top_about.transient(self._root)
+
+        # self._top_about.configure()
+        # Contenido
+        content_about = f"Versión: 1.0\nFecha: 13-Abr-25\nAutor: Manuel C.\nLicencia: MIT\n"
+        # title_font = font.Font(family="Microsoft Tai Le", size=13) # opc1 similar a Microsoft Sans Serif
+        # title_font = font.Font(family="Corbel", size=15) # opc2
+        # title_font = font.Font(family="Segoe UI Light", size=20, weight="bold")  # opc3
+        font_title = font.Font(family="Segoe UI", size=11, weight="bold")
+        font_link = font.Font(underline=True, family="Segoe UI", size=9)
+
+        # titulo
+        self._lbl_title_about = tk.Label(
+            self._top_about, text=f"{MainResources.TITLE}", font=font_title, justify="left", anchor="w", width=27
+        )
+        self._lbl_title_about.pack()
+
+        # contenido
+        self._lbl_content_about = tk.Label(
+            self._top_about, text=content_about, justify="left", anchor="w", width=37
+        )
+        self._lbl_content_about.pack(pady=(10, 0))
+
+        # link repo app
+        self._lbl_repo_app = tk.Label(
+            self._top_about, text="ir al repositorio de la aplicación", font=font_link, cursor="hand2", justify="left", anchor="w", width=37
+        )
+        self._lbl_repo_app.bind("<Button-1>", lambda event: self._open_link("https://github.com/manuel-chinchi/process-manager-py")) # evento click
+        self._lbl_repo_app.pack(pady=(0, 50))
+
+        # boton de cierre
+        self._btn_close_about = tk.Button(
+            self._top_about, text="Aceptar", command=self._close_about_window, padx=25
+        )
+        self._btn_close_about.pack()
+
+    def _show_about_window(self):
+        """ Muestra la ventana 'Acerca de' """
+        if self._top_about is None or not self._top_about.winfo_exists():
+            self._create_about_window()
+
+            self._open_about_window(False)
+        else:
+            self._open_about_window()
+
+        self._apply_theme(self._theme)
+
+    def _open_about_window(self, already_exists=False):
+        if not already_exists:
+            self._top_about.withdraw()
+            self._center_window_on_screen(self._top_about)
+            self._top_about.deiconify()
+        else:
+            self._top_about.deiconify()
+
+    def _close_about_window(self):
+        self._top_about.destroy()
+
     def _create_settings_window(self):
         """Crea la ventana de configuración"""
         self._top_settings = tk.Toplevel(self._root)
@@ -229,24 +331,20 @@ class ProcessManager:
         self._btn_update.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
                                activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
         
-        if self._top_settings != None:
+        if self._top_settings != None and self._top_settings.winfo_exists():
             set_bg_color_title_bar(self._top_settings, color=self._theme["name"])
             self._top_settings.config(bg=self._theme["bg2"])
-        if self._frm_checks != None:
             self._frm_checks.config(bg=self._theme["bg2"])
-        if self._btn_close != None:
             self._btn_close.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
-                                  activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
-        if self._check_flag_adjust_cols != None:
+                                    activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
             self._check_flag_adjust_cols.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
-                                             selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
-                                                 "checkbox_activebackground"],
-                                             activeforeground=self._theme["checkbox_activeforeground"])
-        if self._chk_flag_change_theme != None:
+                                                selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
+                                                    "checkbox_activebackground"],
+                                                activeforeground=self._theme["checkbox_activeforeground"])
             self._chk_flag_change_theme.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
-                                              selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
-                                                  "checkbox_activebackground"],
-                                              activeforeground=self._theme["checkbox_activeforeground"])
+                                                selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
+                                                    "checkbox_activebackground"],
+                                                activeforeground=self._theme["checkbox_activeforeground"])
 
         # Configuración de colores según eventos de widgets de ttk
         self._style.theme_use("clam")  # alt | classic
@@ -270,6 +368,19 @@ class ProcessManager:
         
         # Menú contextual ---------------------------------
         self._context_menu.configure(bg=theme["bg2"], fg=theme["fg"])
+
+        # if self._top_about != None:
+        #     print(f"---cambiar tema en ABOUT")
+        #     set_bg_color_title_bar(self._top_about, color=self._theme["name"])
+        #     self._top_about.config(bg=self._theme["bg2"])
+        if self._top_about != None and self._top_about.winfo_exists():
+            set_bg_color_title_bar(self._top_about, color=self._theme["name"])
+            self._top_about.config(bg=self._theme["bg2"])
+            self._lbl_title_about.config(bg=self._theme["bg2"], fg=self._theme["label_fg"])
+            self._lbl_content_about.config(bg=self._theme["bg2"], fg=self._theme["label_fg"])
+            self._lbl_repo_app.config(bg=self._theme["bg2"], fg=self._theme["label_fg_hyperlink"])
+            self._btn_close_about.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
+                                    activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
 
     def _toggle_theme(self):
         """Alterna entre el tema claro y oscuro de la aplicación"""
@@ -527,3 +638,6 @@ class ProcessManager:
         self._center_window_on_screen(self._root)
         self._root.deiconify()
         self._root.mainloop()
+
+    def _open_link(self, url: str):
+        webbrowser.open_new(url)
