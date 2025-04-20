@@ -76,7 +76,7 @@ class ProcessManager:
         self._style = ttk.Style(self._root)
 
         # Ventana principal ---------------------------------
-        self._root.title(f"{MainResources.TITLE} [PID: {self._pid}]")
+        self._root.title(f"{MainResources.TITLE} v{MainResources.VERSION} [PID: {self._pid}]")
         self._root.geometry(MainResources.SIZE)
         self._root.withdraw()
         self._root.iconbitmap(resource_path(IconResources.APP_ICON))
@@ -202,7 +202,7 @@ class ProcessManager:
 
         # self._top_about.configure()
         # Contenido
-        content_about = f"Versión: 1.0\nFecha: 13-Abr-25\nAutor: Manuel C.\nLicencia: MIT\n"
+        content_about = f"Versión: {MainResources.VERSION}\nFecha: 13-Abr-25\nAutor: Manuel C.\nLicencia: MIT\n"
         # title_font = font.Font(family="Microsoft Tai Le", size=13) # opc1 similar a Microsoft Sans Serif
         # title_font = font.Font(family="Corbel", size=15) # opc2
         # title_font = font.Font(family="Segoe UI Light", size=20, weight="bold")  # opc3

@@ -158,6 +158,7 @@ class IconResources:
 class MainResources:
     TITLE = "Process Manager Py"
     SIZE = "800x600"
+    VERSION = "1.0"
     # columns id's
     ID_COLUMN_PID = 101
     ID_COLUMN_PROCESS_NAME = 102
