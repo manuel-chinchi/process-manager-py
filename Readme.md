@@ -73,3 +73,7 @@ The folder `dist` contain the `setup.exe` installer made with InnoSetup directly
 - [create Menu in TKiner Python](https://recursospython.com/guias-y-manuales/barra-de-menu-tkinter/)
 - [create custom Menu bar in Windows (hacky)](https://stackoverflow.com/questions/77985210/how-to-set-menu-bar-color-in-win32)
 <!-- software made in Argentina 🇦🇷-->
+
+## TODO list
+
+* Support for Linux

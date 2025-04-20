@@ -8,7 +8,6 @@ from config import \
     MainResources, SettingsResources, ThemesResources, IconResources, \
     resource_path, set_bg_color_title_bar
 import webbrowser
-from CTkMenuBar import *
 
 resize_timer = None
 
