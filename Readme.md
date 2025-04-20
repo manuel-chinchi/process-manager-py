@@ -70,4 +70,6 @@ The folder `dist` contain the `setup.exe` installer made with InnoSetup directly
 - [set background color title bar on Windows](https://stackoverflow.com/questions/23836000/can-i-change-the-title-bar-in-tkinter)
 - [multiprocessing in Python](https://superfastpython.com/multiprocessing-freeze-support-in-python/)
 - [comments in functions in Python](https://stackoverflow.com/questions/33019955/should-you-always-document-functions-even-if-redundant-specifically-python)
+- [create Menu in TKiner Python](https://recursospython.com/guias-y-manuales/barra-de-menu-tkinter/)
+- [create custom Menu bar in Windows (hacky)](https://stackoverflow.com/questions/77985210/how-to-set-menu-bar-color-in-win32)
 <!-- software made in Argentina 🇦🇷-->

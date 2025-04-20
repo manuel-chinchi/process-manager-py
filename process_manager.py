@@ -8,6 +8,7 @@ from config import \
     MainResources, SettingsResources, ThemesResources, IconResources, \
     resource_path, set_bg_color_title_bar
 import webbrowser
+from CTkMenuBar import *
 
 resize_timer = None
 
@@ -163,14 +164,15 @@ class ProcessManager:
         self._lbl_total = tk.Label(self._frm_bottom_bar, text=f"{MainResources.TEXT_TOTAL}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
-        self._create_main_menu()
+        self._create_menubar()
 
     def _close_main_window(self):
         self._root.destroy()
 
-    def _create_main_menu(self):
+    def _create_menubar(self):
         """Crea la barra de menú principal de la aplicación """
-        menu_bar = tk.Menu()
+        menu_bar = tk.Menu(self._root)
+
         submenu_file = tk.Menu(menu_bar, tearoff=False)
         submenu_file.add_command(
             label="Salir", accelerator="Ctrl+E", command=self._close_main_window
@@ -365,7 +367,7 @@ class ProcessManager:
                                    ("!selected", self._theme["treeview_foreground_!selected"])],
                        # style.configure(fieldbackground=theme["bg"])
                        fieldbackground=self._theme["bg"])
-        
+
         # Menú contextual ---------------------------------
         self._context_menu.configure(bg=theme["bg2"], fg=theme["fg"])
 
