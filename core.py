@@ -22,6 +22,17 @@ from diskcache import Cache
 import tempfile
 import os
 
+def get_datetime():
+    months = {
+        1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+        7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+    }
+    now = datetime.now()
+    dia = now.day
+    month = months[now.month]
+    year = now.year
+    time = now.strftime("%H:%M:%S")
+    return f"{dia}-{month}-{year} {time}"
 
 class Constants:
     # Estimated times to 'get_process_list'

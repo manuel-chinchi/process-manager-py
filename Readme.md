@@ -72,8 +72,10 @@ The folder `dist` contain the `setup.exe` installer made with InnoSetup directly
 - [comments in functions in Python](https://stackoverflow.com/questions/33019955/should-you-always-document-functions-even-if-redundant-specifically-python)
 - [create Menu in TKiner Python](https://recursospython.com/guias-y-manuales/barra-de-menu-tkinter/)
 - [create custom Menu bar in Windows (hacky)](https://stackoverflow.com/questions/77985210/how-to-set-menu-bar-color-in-win32)
+- [PyGUI (library)](https://github.com/hoffstadt/DearPyGui/wiki/Dear-PyGui-Showcase)
 <!-- software made in Argentina 🇦🇷-->
 
 ## TODO list
 
 * Support for Linux
+* Migrate Tkinter to CTkinter

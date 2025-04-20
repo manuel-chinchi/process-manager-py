@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, font
-from core import Constants, get_process_list
+from core import Constants, get_process_list, get_datetime
 import os
 import subprocess
 import pyperclip
@@ -174,11 +174,14 @@ class ProcessManager:
 
         submenu_file = tk.Menu(menu_bar, tearoff=False)
         submenu_file.add_command(
+            label="Actualizar lista de procesos", accelerator="Ctrl+R"
+        )
+        submenu_file.add_command(
             label="Salir", accelerator="Ctrl+E", command=self._close_main_window
         )
         submenu_config = tk.Menu(menu_bar, tearoff=False)
         submenu_config.add_command(
-            label="Ajustes", command=self._show_settings_window
+            label="Ajustes", accelerator="Ctrl+T", command=self._show_settings_window
         )
         submenu_about = tk.Menu(menu_bar, tearoff=False)
         submenu_about.add_command(
@@ -189,6 +192,11 @@ class ProcessManager:
         menu_bar.add_cascade(menu=submenu_about, label="Ayuda")
 
         self._root.config(menu=menu_bar)
+
+        # binding acceletaros with events
+        self._root.bind_all("<Control-e>", lambda event: self._close_main_window())
+        self._root.bind_all("<Control-t>", lambda event: self._show_settings_window())
+        self._root.bind_all("<Control-r>", lambda event: self._update_process_list())
 
     def _create_about_window(self):
         self._top_about = tk.Toplevel(self._root, padx=20, pady=20)
@@ -505,7 +513,7 @@ class ProcessManager:
 
     def _update_process_list(self):
         # TODO refactorizar
-        """Actualiza la lista de procesos"""
+        """ Actualiza la lista de procesos en la tabla principal """
         for process in self._tree_processes.get_children():
             self._tree_processes.delete(process)
 
@@ -587,7 +595,7 @@ class ProcessManager:
         status = self._tree_processes.item(selected[0], "values")[2]
         exe = self._tree_processes.item(selected[0], "values")[3]  # path
 
-        pyperclip.copy(f"{pid}\t{name}\t{status}\t{exe}")
+        pyperclip.copy(f"[{get_datetime()}]: PID={pid}, Name={name}, Status={status}, Location={exe}")
         print(f"> Acción: Se copio el contenido de la fila al portapapeles")
 
     # def _kill_process(self):
