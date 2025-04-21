@@ -25,7 +25,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-def adjust_app_DPI():
+def adjust_dpi_application():
     """Ajusta el renderizado de la aplicación para pantallas con DPI alto (en sistemas Windows)"""
     import ctypes
     try:  # >= win 8.1
@@ -193,5 +193,5 @@ class SettingsResources:
     TITLE = "Configuración"
     SIZE = "320x140"
     TEXT_ADJUST_WIDTH_COLS = "Ajuste automático de columna"
-    TEXT_ENABLE_DARK_THEME = "Activar tema oscuro (experimental)"
+    TEXT_ENABLE_DARK_THEME = "Activar tema oscuro"
     TEXT_CLOSE = "Cerrar"

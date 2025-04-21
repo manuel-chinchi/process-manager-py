@@ -40,11 +40,11 @@ class ProcessManager:
         # Ventana de configuración ---------------------------------
         self._wnd_settings = None
         self._frm_checks = None
-        self._check_flag_adjust_cols = None
-        self._chk_flag_change_theme = None
+        self._chk_adjust_cols = None
+        self._chk_dark_theme = None
         self._btn_close = None
         self._flag_adjust_cols = tk.BooleanVar(value=True)
-        self._flag_change_theme = tk.BooleanVar(value=False)
+        self._flag_dark_theme = tk.BooleanVar(value=False)
 
         # Ventana acerca de ---------------------------------
         self._wnd_about = None
@@ -52,6 +52,8 @@ class ProcessManager:
         self._lbl_title_about = None
         self._lbl_content_about = None
         self._btn_close_about = None
+
+        self._create_menubar()
 
         # Otros ---------------------------------
         # dict que se utiliza para indicar el orden de las columnas en '_sort_column'
@@ -163,8 +165,6 @@ class ProcessManager:
         self._lbl_total = tk.Label(self._frm_bottom_bar, text=f"{MainResources.TEXT_TOTAL}: 0")
         self._lbl_total.pack(side="left", padx=5)
 
-        self._create_menubar()
-
     def _close_main_window(self):
         self._window.destroy()
 
@@ -174,14 +174,20 @@ class ProcessManager:
 
         menu_dropdown_file = tk.Menu(menu_bar, tearoff=False)
         menu_dropdown_file.add_command(
-            label="Actualizar lista de procesos", accelerator="Ctrl+R"
+            label="Actualizar lista de procesos", accelerator="Ctrl+R", command=self._update_process_list
         )
         menu_dropdown_file.add_command(
             label="Salir", accelerator="Ctrl+E", command=self._close_main_window
         )
         menu_dropdown_config = tk.Menu(menu_bar, tearoff=False)
         menu_dropdown_config.add_command(
-            label="Ajustes", accelerator="Ctrl+T", command=self._show_settings_window
+            label="Ajustes", accelerator="Ctrl+S", command=self._show_settings_window
+        )
+        menu_dropdown_config.add_checkbutton(
+            label=SettingsResources.TEXT_ENABLE_DARK_THEME,
+            accelerator="Ctrl+T",
+            variable=self._flag_dark_theme,
+            command=self._toggle_theme
         )
         menu_dropdown_help = tk.Menu(menu_bar, tearoff=False)
         menu_dropdown_help.add_command(
@@ -193,10 +199,12 @@ class ProcessManager:
 
         self._window.config(menu=menu_bar)
 
-        # binding acceletaros with events
+        # enlazo atajo de tecla a eventos
         self._window.bind_all("<Control-e>", lambda event: self._close_main_window())
-        self._window.bind_all("<Control-t>", lambda event: self._show_settings_window())
+        self._window.bind_all("<Control-s>", lambda event: self._show_settings_window())
         self._window.bind_all("<Control-r>", lambda event: self._update_process_list())
+        self._window.bind_all("<Control-t>", lambda event: self._flag_dark_theme.set(not self._flag_dark_theme.get()) or self._toggle_theme())
+
 
     def _create_about_window(self):
         self._wnd_about = tk.Toplevel(self._window, padx=20, pady=20)
@@ -219,26 +227,31 @@ class ProcessManager:
 
         # titulo
         self._lbl_title_about = tk.Label(
-            self._wnd_about, text=f"{MainResources.TITLE}", font=font_title, justify="left", anchor="w", width=27
+            self._wnd_about, text=f"{MainResources.TITLE}", 
+            font=font_title, justify="left", anchor="w", width=27
         )
         self._lbl_title_about.pack()
 
         # contenido
         self._lbl_content_about = tk.Label(
-            self._wnd_about, text=content_about, justify="left", anchor="w", width=37
+            self._wnd_about, text=content_about, 
+            justify="left", anchor="w", width=37
         )
         self._lbl_content_about.pack(pady=(10, 0))
 
         # link repo app
         self._lbl_repo_app = tk.Label(
-            self._wnd_about, text="ir al repositorio de la aplicación", font=font_link, cursor="hand2", justify="left", anchor="w", width=37
+            self._wnd_about, text="ir al repositorio de la aplicación", 
+            font=font_link, cursor="hand2", justify="left", 
+            anchor="w", width=37
         )
         self._lbl_repo_app.bind("<Button-1>", lambda event: self._open_link("https://github.com/manuel-chinchi/process-manager-py")) # evento click
         self._lbl_repo_app.pack(pady=(0, 50))
 
         # boton de cierre
         self._btn_close_about = tk.Button(
-            self._wnd_about, text="Aceptar", command=self._close_about_window, padx=25
+            self._wnd_about, text="Aceptar", 
+            command=self._close_about_window, padx=25
         )
         self._btn_close_about.pack()
 
@@ -280,16 +293,19 @@ class ProcessManager:
         self._frm_checks = tk.Frame(self._wnd_settings)
         self._frm_checks.pack(padx=10, pady=10, anchor="w")
 
-        self._check_flag_adjust_cols = tk.Checkbutton(
-            self._frm_checks, text=SettingsResources.TEXT_ADJUST_WIDTH_COLS, variable=self._flag_adjust_cols)
-        self._check_flag_adjust_cols.pack(anchor="w")
+        self._chk_adjust_cols = tk.Checkbutton(
+            self._frm_checks, text=SettingsResources.TEXT_ADJUST_WIDTH_COLS, 
+            variable=self._flag_adjust_cols)
+        self._chk_adjust_cols.pack(anchor="w")
 
-        self._chk_flag_change_theme = tk.Checkbutton(
-            self._frm_checks, text=SettingsResources.TEXT_ENABLE_DARK_THEME, variable=self._flag_change_theme, command=self._toggle_theme)
-        self._chk_flag_change_theme.pack(anchor="w")
+        self._chk_dark_theme = tk.Checkbutton(
+            self._frm_checks, text=SettingsResources.TEXT_ENABLE_DARK_THEME, 
+            variable=self._flag_dark_theme, command=self._toggle_theme)
+        self._chk_dark_theme.pack(anchor="w")
 
         self._btn_close = tk.Button(
-            self._wnd_settings, text=SettingsResources.TEXT_CLOSE, command=self._close_settings_window)
+            self._wnd_settings, text=SettingsResources.TEXT_CLOSE, 
+            command=self._close_settings_window)
         self._btn_close.pack(pady=10, ipadx=35)
 
     def _close_settings_window(self):
@@ -346,11 +362,11 @@ class ProcessManager:
             self._frm_checks.config(bg=self._theme["bg2"])
             self._btn_close.config(bg=self._theme["button_bg"], fg=self._theme["button_fg"],
                                     activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
-            self._check_flag_adjust_cols.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
+            self._chk_adjust_cols.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
                                                 selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
                                                     "checkbox_activebackground"],
                                                 activeforeground=self._theme["checkbox_activeforeground"])
-            self._chk_flag_change_theme.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
+            self._chk_dark_theme.config(bg=self._theme["checkbox_bg"], fg=self._theme["checkbox_fg"],
                                                 selectcolor=self._theme["checkbox_selectcolor"], activebackground=self._theme[
                                                     "checkbox_activebackground"],
                                                 activeforeground=self._theme["checkbox_activeforeground"])
@@ -392,8 +408,8 @@ class ProcessManager:
                                     activebackground=self._theme["button_activebackground"], activeforeground=self._theme["button_activeforeground"])
 
     def _toggle_theme(self):
-        """Alterna entre el tema claro y oscuro de la aplicación"""
-        if self._theme == ThemesResources.LIGHT_THEME:
+        """ Alterna entre el tema claro y oscuro de la aplicación"""
+        if self._flag_dark_theme.get():
             self._apply_theme(ThemesResources.DARK_THEME)
         else:
             self._apply_theme(ThemesResources.LIGHT_THEME)
