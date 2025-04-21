@@ -53,9 +53,10 @@ class ProcessManager:
         self._lbl_content_about = None
         self._btn_close_about = None
 
+        # Otros ---------------------------------
+        self._flag_fullscreen = tk.BooleanVar(value=False)
         self._create_menubar()
 
-        # Otros ---------------------------------
         # dict que se utiliza para indicar el orden de las columnas en '_sort_column'
         self._order_asc = {
             MainResources.ID_COLUMN_PID: False,
@@ -183,6 +184,13 @@ class ProcessManager:
         menu_dropdown_config.add_command(
             label="Ajustes", accelerator="Ctrl+S", command=self._show_settings_window
         )
+        menu_dropdown_view = tk.Menu(menu_bar, tearoff=False)
+        menu_dropdown_view.add_checkbutton(
+            label="Pantalla completa",
+            accelerator="F11",
+            variable=self._flag_fullscreen,
+            command=self._toggle_fullscreen
+        )
         menu_dropdown_config.add_checkbutton(
             label=SettingsResources.TEXT_ENABLE_DARK_THEME,
             accelerator="Ctrl+T",
@@ -194,6 +202,7 @@ class ProcessManager:
             label=f"Acerca de {MainResources.TITLE}...", command=self._show_about_window
         )
         menu_bar.add_cascade(menu=menu_dropdown_file, label="Archivo")
+        menu_bar.add_cascade(menu=menu_dropdown_view, label="Ver")
         menu_bar.add_cascade(menu=menu_dropdown_config, label="Configuración")
         menu_bar.add_cascade(menu=menu_dropdown_help, label="Ayuda")
 
@@ -204,7 +213,13 @@ class ProcessManager:
         self._window.bind_all("<Control-s>", lambda event: self._show_settings_window())
         self._window.bind_all("<Control-r>", lambda event: self._update_process_list())
         self._window.bind_all("<Control-t>", lambda event: self._flag_dark_theme.set(not self._flag_dark_theme.get()) or self._toggle_theme())
+        self._window.bind_all("<F11>", lambda event: self._flag_fullscreen.set(not self._flag_fullscreen.get()) or self._toggle_fullscreen())
 
+    def _toggle_fullscreen(self):
+        """ Ajusta la aplicación a pantalla completa """
+        is_fullscreen = self._window.attributes("-fullscreen")
+        print(is_fullscreen)
+        self._window.attributes("-fullscreen", not is_fullscreen)
 
     def _create_about_window(self):
         self._wnd_about = tk.Toplevel(self._window, padx=20, pady=20)
