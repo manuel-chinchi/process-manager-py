@@ -218,7 +218,6 @@ class ProcessManager:
     def _toggle_fullscreen(self):
         """ Ajusta la aplicación a pantalla completa """
         is_fullscreen = self._window.attributes("-fullscreen")
-        print(is_fullscreen)
         self._window.attributes("-fullscreen", not is_fullscreen)
 
     def _create_about_window(self):
@@ -627,7 +626,7 @@ class ProcessManager:
         exe = self._tree_processes.item(selected[0], "values")[3]  # path
 
         pyperclip.copy(f"[{get_datetime()}]: PID={pid}, Name={name}, Status={status}, Location={exe}")
-        print(f"> Acción: Se copio el contenido de la fila al portapapeles")
+        print(f"> ACCIÓN: Se copio el contenido de la fila al portapapeles")
 
     # def _kill_process(self):
     #     """Finaliza el proceso seleccionado."""
@@ -652,7 +651,7 @@ class ProcessManager:
         path = os.path.realpath(exe)
 
         if not os.path.exists(path):
-            print(f"Archivo no encontrado: {path}")
+            print(f"> ERROR: No se encontro el archivo '{path}'")
             return
 
         try:
@@ -660,7 +659,7 @@ class ProcessManager:
         except Exception as e:
             # print(f"> Advertencia: La ruta '{e}' se encuentra en una carpeta privada del sistema")
             print(
-                f"> Advertencia: La ruta '{path}' se encuentra en una carpeta privada del sistema")
+                f"> ADVERTENCIA: La ruta '{path}' se encuentra en una carpeta privada del sistema")
 
     def _center_window_on_screen(self, window: tk.Tk):
         """Establece la posición de la ventana en el centro de la pantalla"""
