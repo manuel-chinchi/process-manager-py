@@ -6,7 +6,7 @@ from process_manager import ProcessManager
 
 def main():
     # requerido para crear el executable con PyInstaller!!!
-    avoid_thread_overflow() 
+    avoid_thread_overflow()
 
     if is_Windows():
         adjust_dpi_application()
