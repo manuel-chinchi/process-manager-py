@@ -8,6 +8,9 @@ from config import \
     MainResources, SettingsResources, ThemesResources, IconResources, \
     resource_path, set_bg_color_title_bar
 import webbrowser
+import win32com.client
+import pythoncom
+
 
 resize_timer = None
 
@@ -694,9 +697,6 @@ class ProcessManager:
         exe = self._tree_processes.item(selected[0], "values")[3]
 
         try:
-            import win32com.client
-            import pythoncom
-
             pythoncom.CoInitialize()
             shell = win32com.client.Dispatch("Shell.Application")
             dir = os.path.dirname(exe)
