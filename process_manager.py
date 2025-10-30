@@ -141,6 +141,7 @@ class ProcessManager:
         self._context_menu = tk.Menu(self._window, tearoff=0)
         self._context_menu.add_command(label=MainResources.TEXT_COPY_TO_CLIPBOARD, command=self._copy_content_to_clipboard)
         self._context_menu.add_command(label=MainResources.TEXT_OPEN_LOCATION_PROCESS, command=self._open_location_process)
+        self._context_menu.add_command(label=MainResources.TEXT_PROPERTIES, command=self._show_properties_of_file)
 
         self._tree_processes.bind("<Button-3>", self._show_context_menu)
 
@@ -680,3 +681,29 @@ class ProcessManager:
 
     def _open_link(self, url: str):
         webbrowser.open_new(url)
+
+    def _show_properties_of_file(self):
+        """Muestra la ventana de propiedades asociada al .exe del proceso."""
+        selected = self._tree_processes.selection()
+        if not selected:
+            return
+
+        pid = self._tree_processes.item(selected[0], "values")[0]
+        name = self._tree_processes.item(selected[0], "values")[1]
+        status = self._tree_processes.item(selected[0], "values")[2]
+        exe = self._tree_processes.item(selected[0], "values")[3]
+
+        try:
+            import win32com.client
+            import pythoncom
+
+            pythoncom.CoInitialize()
+            shell = win32com.client.Dispatch("Shell.Application")
+            dir = os.path.dirname(exe)
+            file = os.path.basename(exe)
+            folder = shell.NameSpace(dir)
+            item = folder.ParseName(file)
+            item.InvokeVerb("properties")
+
+        except Exception as e:
+            print(f"> ERROR: No se pudo abrir la ventana de propiedades del proceso asociado al archivo '{exe}'")

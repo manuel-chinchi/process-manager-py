@@ -181,6 +181,7 @@ class MainResources:
 
     TEXT_COPY_TO_CLIPBOARD = "Copiar información al portapapeles"
     TEXT_OPEN_LOCATION_PROCESS = "Abrir ubicación del archivo"
+    TEXT_PROPERTIES = "Propiedades"
 
     TEXT_SEARCH = "Buscar"
     TEXT_UPDATE = "Actualizar"
